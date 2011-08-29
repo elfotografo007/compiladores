@@ -5,7 +5,7 @@ Created on 25/08/2011
 '''
 from ply import lex
 #Lista de palabras reservadas del lenguaje
-reserved = {'while' : 'WHILE', 
+reserved = { 'while' : 'WHILE',
             'do' : 'DO', 
             'if' : 'IF', 
             'then' : 'THEN',
@@ -24,7 +24,7 @@ reserved = {'while' : 'WHILE',
             'and' : 'AND', 
             'or' : 'OR', 
             'not' : 'NOT'}
-tokens = list(reserved.values()) + ['IDENTIFICADOR', 'ENTERO', 'FLOTANTE', 'COMENTARIO', 'CADENA', 'ASIGNACION', 'IGUALIGUAL', 'MENORIGUAL', 'MAYORIGUAL', 'DIFERENTE']
+tokens = list(reserved.values()) + ['WHILE','IDENTIFICADOR', 'ENTERO', 'FLOTANTE', 'COMENTARIO', 'CADENA', 'ASIGNACION', 'IGUALIGUAL', 'MENORIGUAL', 'MAYORIGUAL', 'DIFERENTE']
 
 literals = ['(', ')', '[', ']', '+', '-', '*', '/', ':', ';', '<', '>', ',']
 
@@ -33,6 +33,8 @@ t_ignore = " \t"
 def t_ignore_COMENTARIO(t):
     r"/\*(.|\n)*?\*/"
     t.lexer.lineno += t.value.count("\n")
+
+t_WHILE = r"while"
 
 def t_IDENTIFICADOR(t):
     r"[_a-zA-Z][_a-zA-Z\d]*"
@@ -44,7 +46,7 @@ t_CADENA = r"\"([^\\\n]|(\\.))*\""
 
 t_ENTERO = r"0|[1-9]\d*"
 
-t_FLOTANTE = r"(\d+\.\d+)([eE][+-]?\d+)?| \d+[eE][+-]?\d+"
+t_FLOTANTE = r"(\d+\.\d+)([e][+-]?\d+)?| \d+[e][+-]?\d+"
 
 t_ASIGNACION = r":="
 
