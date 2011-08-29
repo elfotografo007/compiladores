@@ -63,7 +63,7 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
 
 def t_error(t):
-    print "Error, no se identifica  ", t.value, "en linea ", t.lineno
+    print "Error, no se identifica  ", t.value[0], "en linea ", t.lineno
     t.lexer.skip(1)
 
 lex.lex()
