@@ -45,7 +45,7 @@ t_CADENA = r"\"([^\\\n]|(\\.))*\""
 t_FLOTANTE = r"(\d+\.\d+)([e][+-]?\d+)?| \d+[e][+-]?\d+"
 
 def t_ENTERO(t):
-    r"\d+"
+    r"\d+(?!\d*\.\d+)"
     if (t.value[0] == '0' and len(t.value) > 1):
         print "Entero ilegal: ", t.value
         t.lexer.skip(1)
