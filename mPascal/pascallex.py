@@ -24,7 +24,7 @@ reserved = { 'while' : 'WHILE',
             'and' : 'AND', 
             'or' : 'OR', 
             'not' : 'NOT'}
-tokens = list(reserved.values()) + ['WHILE','IDENTIFICADOR', 'ENTERO', 'FLOTANTE', 'COMENTARIO', 'CADENA', 'ASIGNACION', 'IGUALIGUAL', 'MENORIGUAL', 'MAYORIGUAL', 'DIFERENTE']
+tokens = list(reserved.values()) + ['IDENTIFICADOR', 'ENTERO', 'FLOTANTE', 'COMENTARIO', 'CADENA', 'ASIGNACION', 'IGUALIGUAL', 'MENORIGUAL', 'MAYORIGUAL', 'DIFERENTE']
 
 literals = ['(', ')', '[', ']', '+', '-', '*', '/', ':', ';', '<', '>', ',']
 
@@ -34,8 +34,6 @@ def t_ignore_COMENTARIO(t):
     r"/\*(.|\n)*?\*/"
     t.lexer.lineno += t.value.count("\n")
 
-t_WHILE = r"while"
-
 def t_IDENTIFICADOR(t):
     r"[_a-zA-Z][_a-zA-Z\d]*"
     #Verifica que no sea una palabra reservada. Si t.value esta en reserved lo asigna, si no, lo deja como identificador
@@ -44,9 +42,19 @@ def t_IDENTIFICADOR(t):
 
 t_CADENA = r"\"([^\\\n]|(\\.))*\""
 
-t_ENTERO = r"0|[1-9]\d*"
-
 t_FLOTANTE = r"(\d+\.\d+)([e][+-]?\d+)?| \d+[e][+-]?\d+"
+
+def t_ENTERO(t):
+    r"\d+"
+    if (t.value[0] == '0' and len(t.value) > 1):
+        print "Entero ilegal: ", t.value
+        t.lexer.skip(1)
+    try:
+        t.value = int(t.value)
+    except ValueError:
+        print "Entero demasiado largo", t.value
+        t.value = 0
+    return t
 
 t_ASIGNACION = r":="
 
