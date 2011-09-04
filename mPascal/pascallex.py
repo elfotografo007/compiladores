@@ -34,9 +34,9 @@ t_ignore = " \t"
 def t_ignore_COMENTARIO(t):
     r"/\*(.|\n)*?\*/"
     t.lexer.lineno += t.value.count("\n")
-
+    
 def t_error_flotante(t):
-    r".*\..*\.+"
+    r".*\..*\.+.*"
     print "Se ha encontrado un flotante mal formado: ", t.value, " en linea ", t.lineno
     t.lexer.skip(1)
     
@@ -89,6 +89,7 @@ def t_IDENTIFICADOR(t):
     #Verifica que no sea una palabra reservada. Si t.value esta en reserved lo asigna, si no, lo deja como identificador
     t.type = reserved.get(t.value, 'IDENTIFICADOR') 
     return t
+
 
 
 def t_newline(t):
