@@ -53,7 +53,7 @@ def t_FLOTANTE(t):
       #  t.value = 0
     return t
 
-def t_error_ID(t):
+def t_error_identificador(t):
     r"\d+[_a-zA-Z]+"
     print "Se ha encontrado un Identificador mal formado: ", t.value, " en linea ", t.lineno
     t.lexer.skip(1)
