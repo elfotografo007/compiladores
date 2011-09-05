@@ -34,11 +34,24 @@ t_ignore = " \t"
 def t_ignore_COMENTARIO(t):
     r"/\*(.|\n)*?\*/"
     t.lexer.lineno += t.value.count("\n")
+
+def t_error_comentario1(t):
+    r"/\*(.|\n)*"
+    print "Se ha encontrado un comentario sin cerrar : ", t.value, " en linea ", t.lineno
+    t.lexer.skip(1)
+    t.lexer.lineno += 1
+    
+def t_error_comentario2(t):
+    r"\*/"
+    print "Se ha encontrado un comentario mal formado : ", t.value, " en linea ", t.lineno
+    t.lexer.skip(1)
+    t.lexer.lineno += 1
     
 def t_error_flotante(t):
-    r".*\..*\.+.*"
+    r".*\..*\.+.* | \d+\.\d+e(\+\++ | --+)\d+ | \d+e(\+\++ | --+)\d+ | \..*"
     print "Se ha encontrado un flotante mal formado: ", t.value, " en linea ", t.lineno
     t.lexer.skip(1)
+    t.lexer.lineno += 1
     
 def t_FLOTANTE(t):
     r"(\d+\.\d+)([e][+-]?\d+)?| \d+[e][+-]?\d+"
@@ -46,6 +59,7 @@ def t_FLOTANTE(t):
         print "Flotante ilegal: ", t.value, " en linea ", t.lineno
         t.value = 0
         t.lexer.skip(1)
+        t.lexer.lineno += 1
     #try:
      #   t.value = float(t.value)
     #except ValueError:
@@ -57,18 +71,21 @@ def t_error_identificador(t):
     r"\d+[_a-zA-Z]+"
     print "Se ha encontrado un Identificador mal formado: ", t.value, " en linea ", t.lineno
     t.lexer.skip(1)
+    t.lexer.lineno += 1
 
 def t_ENTERO(t):
     r"\d+"
     if (t.value[0] == '0' and len(t.value) > 1):
         print "Entero ilegal: ", t.value, " en linea ", t.lineno
         t.lexer.skip(1)
-    try:
-        t.value = int(t.value)
-    except ValueError:
-        print "Entero demasiado largo", t.value, " en linea ", t.lineno
-        t.value = 0
-    return t
+        t.lexer.lineno += 1
+    else:
+        try:
+            t.value = int(t.value)
+        except ValueError:
+            print "Entero demasiado largo", t.value, " en linea ", t.lineno
+            t.value = 0
+        return t
 
 
 t_ASIGNACION = r":="
