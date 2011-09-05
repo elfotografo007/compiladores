@@ -1,0 +1,90 @@
+Gram‡tica EBNF
+
+<programa> ::= <estructura_funcion>+ 
+
+<estructura_funcion> ::= FUN IDENTIFICADOR Ô(Ô  [arg(Ô,Õ arg)*]  Ô)Õ <locals> BEGIN <declaraciones> END
+
+<arg> ::= IDENTIFICADOR Ô:Õ <tipo>
+
+<locals> ::= ( <args> Ô;Õ | <estructura_funcion> Ô;Õ )*
+
+<tipo> ::= INT[ Ô[Ô index Ô]Õ  ] | FLOAT[ Ô[Ô index Ô]Õ  ] 
+
+<stmts> ::= BEGIN <declaraciones> END | <instruccion>
+
+<declaraciones> ::= (<instruccion> Ô;Õ)* <instruccion>
+
+<instruccion> ::= <str_while>
+				| <str_if>
+				| <str_if_else>
+				| <asign>
+				| <str_print>
+				| <str_write>
+				| <str_read>
+				| <str_return>
+				| <llamada>
+				| SKIP
+				|BREAK
+
+<str_while>  ::= WHILE <relation> DO <stmts>
+
+<str_if>  ::= IF <relation> THEN  <stmts>
+
+<str_if_else>  ::= IF <relation> THEN  <stmts> ELSE <stmts>
+
+<asign> ::= <location> Ô:=Õ <expression>
+
+<str_print> ::= PRINT Ô(Ô <literal> Ô)Õ
+
+<str_write> ::= WRITE Ô(Ô <expression> Ô)Õ
+
+<str_read> ::= READ Ô(Ô <location> Ô)Õ
+
+<str_return> ::= RETURN <expression>
+
+<llamada> ::= IDENTIFICADOR Ô(Ô ( <expression> Ô,Õ )* <expression> Ô)Õ 
+			| IDENTIFICADOR Ô(Ô  Ô)Õ
+
+<relation> ::= <expression> <oprel> <expression> | <logical_relation>
+
+<logical_relation> ::=  <relation> AND <relation> 
+					| NOT <relation>
+					| <relation> OR <relation>
+					| '(' <relation> ')'
+
+<oprel> ::= '<'
+		|'>'
+		|'<='
+		|'>='
+		|'=='
+		|'!='
+	
+<expression> ::= <term> ( <opsuma> <term> )*
+		
+<opsuma> ::= '+'
+	| '-'
+
+<term> ::=  <factor> (<opmult> <factor> )*
+
+<opmult> ::= '*'
+	| '/'
+
+<factor> ::= '('<expression>')'
+		|<numero>
+		|'-'<expression>
+		|'+'<expression>
+		|<llamada>
+		|<location>
+
+<location> ::= IDENTIFICADOR |
+			| IDENTIFICADOR'['<index>']'
+
+<index> ::= <expression>
+		| ENTERO
+
+<literal> ::= IDENTIFICADOR
+		|<numero>
+		| STRING
+
+<numero> ::= ENTERO
+		| FLOTANTE
