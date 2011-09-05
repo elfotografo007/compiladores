@@ -48,7 +48,7 @@ def t_error_comentario2(t):
     t.lexer.lineno += 1
     
 def t_error_flotante(t):
-    r".*\..*\.+.* | \d+\.\d+e(\+\++ | --+)\d+ | \d+e(\+\++ | --+)\d+ | \..*"
+    r".*\..*\.+.* | \d+\.\d+e(\+\++ | --+)\d+ | \d+e(\+\++ | --+)\d+ | \..* | .*e[+-]?0.* | .*\.e.*"
     print "Se ha encontrado un flotante mal formado: ", t.value, " en linea ", t.lineno
     t.lexer.skip(1)
     t.lexer.lineno += 1
@@ -116,7 +116,6 @@ def t_IDENTIFICADOR(t):
     #Verifica que no sea una palabra reservada. Si t.value esta en reserved lo asigna, si no, lo deja como identificador
     t.type = reserved.get(t.value, 'IDENTIFICADOR') 
     return t
-
 
 
 def t_newline(t):
