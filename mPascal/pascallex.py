@@ -98,9 +98,19 @@ t_MAYORIGUAL = r">="
 
 t_DIFERENTE = r"!="
 
-t_CADENA = r"\"([^\\\n]|(\\.))*\""
+def t_CADENA(t):
+    r"\"([^\\\n]|(\\.))*\""
+    t.value = t.value.replace(r'\"', '"')
+    t.value = t.value.replace(r'\\', '\\')
+    t.value = t.value.replace(r'\n', '')
+    return t
 
-
+def t_error_cadena(t):
+    r"\".*"
+    print "Cadena mal formada: ", t.value, " en linea ", t.lineno
+    t.lexer.skip(1)
+    t.lexer.lineno += 1
+        
 def t_IDENTIFICADOR(t):
     r"[_a-zA-Z][_a-zA-Z\d]*"
     #Verifica que no sea una palabra reservada. Si t.value esta en reserved lo asigna, si no, lo deja como identificador
