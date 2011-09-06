@@ -82,7 +82,31 @@ Gram‡tica EBNF
 
 <literal> ::= IDENTIFICADOR
 		|<numero>
-		| STRING
+		| CADENA
 
 <numero> ::= ENTERO
 		| FLOTANTE
+		
+ENTERO ::= \d+
+FLOTANTE ::= (\d+\.\d+)([e][+-]?\d+)?| \d+[e][+-]?\d+
+CADENA ::= \"([^\\\n]|(\\.))*\"
+WHILE ::='while'  
+DO ::= 'do' 
+IF ::= 'if'
+THEN ::= 'then' 
+ELSE ::= else'
+FUN ::= 'fun' 
+BEGIN ::= 'begin' 
+END ::= 'end'
+RETURN ::= 'return' 
+PRINT ::= 'print'
+WRITE ::= 'write'
+READ ::= 'read'
+SKIP ::= 'skip'
+BREAK ::= 'break'
+INT ::= 'int'
+FLOAT ::= 'float'
+AND ::= 'and' 
+OR ::= 'or'
+NOT ::= 'not' 
+IDENTIFICADOR ::= [_a-zA-Z][_a-zA-Z\d]*
