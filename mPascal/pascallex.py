@@ -3,6 +3,7 @@ Created on 25/08/2011
 
 @author: elfotografo007
 '''
+#pascallex.py
 from ply import lex
 #Lista de palabras reservadas del lenguaje
 reserved = { 'while' : 'WHILE',
