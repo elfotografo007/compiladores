@@ -9,7 +9,17 @@ from Nodo import Nodo
 from pascallex import tokens
 
 
+def p_programa(p):
+    'programa : declaraciones_funcion'
+    p[0] = p[1]
 
+def p_declaraciones_funcion1(p):
+    'declaraciones_funcion : declaraciones_funcion estructura_funcion'
+    p[0] = Nodo('declaraciones_funcion', [p[1], p[2]])
+
+def p_declaraciones_funcion2(p):
+    'declaraciones_funcion : estructura_funcion'
+    p[0] = p[1]
 
 
 _____________________________
