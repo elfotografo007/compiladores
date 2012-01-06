@@ -5,3 +5,10 @@ Created on 06/01/2012
 '''
 #mpasparse.py
 #Analizador Sintactico para mPascal
+from Nodo import Nodo
+
+
+
+def p_empty(p):
+    'empty :'
+    pass
