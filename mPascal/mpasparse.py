@@ -136,7 +136,6 @@ def p_instruccion10(p):
 def p_instruccion11(p):
     "instruccion : BREAK"
     p[0] = p[1]
-_____________________________
 
 def p_str_while(p):
     'str_while : WHILE relation DO stmts'
@@ -179,24 +178,41 @@ def p_llamada2(p):
     p[0]=Nodo('llamada',[p[1],p[2],p[3]])
     
 def p_relation1(p):
-    'relation1 : expression oprel expression'
-    p[0]=Nodo('relation',[p[1],p[2],p[3]])
+    'relation : expr_or'
+    p[0]=p[1]
     
 def p_relation2(p):
-    'relation : relation AND relation'
+    "relation : '(' relation ')' "
     p[0]=Nodo('relation',[p[1],p[2],p[3]])
-    
-def p_relation3(p):
-    'relation : NOT relation'
-    p[0]=Nodo('relation',[p[1],p[2]])
 
-def p_relation4(p):
-    'relation : relation OR relation'
-    p[0]=Nodo('relation',[p[1],p[2],p[3]])
+def p_expr_or1(p):
+    'expr_or : expr_and'
+    p[0] = p[1]
+
+def p_expr_or2(p):
+    'expr_or : expr_or OR expr_and'
+    p[0]=Nodo('expr_or',[p[1],p[2],p[3]])
     
-def p_relation5(p):
-    "relation : '(' relation ')'"
-    p[0]=Nodo('relation',[p[1],p[2],p[3]])
+def p_expr_and1(p):
+    'expr_and : expr_not'
+    p[0] = p[1]
+    
+def p_expr_and2(p):
+    'expr_and : expr_and AND expr_not'
+    p[0]=Nodo('expr_and',[p[1],p[2],p[3]])
+    
+def p_expr_not1(p):
+    'expr_not : comparacion'
+    p[0] = p[1]
+    
+def p_expr_not2(p):
+    'expr_not : NOT comparacion'
+    p[0]=Nodo('expr_not',[p[1],p[2]])
+    
+def p_comparacion(p):
+    'comparacion : expression oprel expression'
+    p[0]=Nodo('comparacion',[p[1],p[2],p[3]])
+    
     
 def p_oprel1(p):
     "oprel : '<'"
@@ -211,7 +227,7 @@ def p_oprel3(p):
     p[0]=p[1]
 
 def p_oprel4(p):
-    'oprel : MAYOUIGUAL'
+    'oprel : MAYORIGUAL'
     p[0]=p[1]
     
 def p_oprel5(p):
@@ -235,7 +251,7 @@ def p_expression1(p):
     p[0]=Nodo('expression',[p[1],p[2],p[3]])
     
 def p_expression2(p):
-    'expression : expression opsuma term'    
+    'expression : term'    
     p[0]=p[1]
 
 def p_opsuma1(p):
@@ -247,23 +263,23 @@ def p_opsuma2(p):
     p[0]=p[1]
 
 def p_term1(p):
-    'term: term opmult factor'    
+    'term : term opmult factor'    
     p[0]=Nodo('term',[p[1],p[2],p[3]])
     
 def p_term2(p):
-    'term: factor'    
+    'term : factor'    
     p[0]=p[1]
     
 def p_opmult1(p):
-    "opmult: '*'"
+    "opmult : '*'"
     p[0]=p[1]
     
 def p_opmult2(p):
-    "opmult: '/'"
+    "opmult : '/'"
     p[0]=p[1]
     
 def p_factor1(p):
-    "factor : '('expression')'"
+    "factor : '(' expression ')'"
     p[0]=Nodo('factor',[p[1],p[2],p[3]])
     
 def p_factor2(p):
@@ -271,11 +287,11 @@ def p_factor2(p):
     p[0]=p[1]
     
 def p_factor3(p):
-    "factor : '-'expression"
+    "factor : '-' expression"
     p[0]=Nodo('factor',[p[1],p[2]])
 
 def p_factor4(p):
-    "factor : '+'expression"
+    "factor : '+' expression"
     p[0]=Nodo('factor',[p[1],p[2]])
     
 def p_factor5(p):
@@ -291,7 +307,7 @@ def p_location1(p):
     p[0]=p[1]
     
 def p_location2(p):
-    "location : IDENTIFICADOR'['index']'"
+    "location : IDENTIFICADOR '[' index ']'"
     p[0]=Nodo('location',[p[1],p[2],p[3],p[4]])
 
 def p_index1(p):
@@ -311,7 +327,7 @@ def p_literal2(p):
     p[0]=p[1]        
 
 def p_literal3(p):
-    'literal : STRING'
+    'literal : CADENA'
     p[0]=p[1]
     
 def p_numero1(p):
@@ -337,10 +353,10 @@ yacc.yacc()
 
 while 1:
     try:
-        s = raw_input('calc > ')
+        s = raw_input('Entrada > ')
     except EOFError:
         break
     if not s: continue
     root = yacc.parse(s)
-    #if root:
-        #root.imprimir(1)
+    if root:
+        root.imprimir(1)
