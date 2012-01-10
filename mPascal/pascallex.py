@@ -25,7 +25,7 @@ reserved = { 'while' : 'WHILE',
             'and' : 'AND', 
             'or' : 'OR', 
             'not' : 'NOT'}
-tokens = list(reserved.values()) + ['IDENTIFICADOR',  'FLOTANTE', 'ENTERO', 'COMENTARIO', 'CADENA', 'ASIGNACION', 'IGUALIGUAL', 'MENORIGUAL', 'MAYORIGUAL', 'DIFERENTE']
+tokens = list(reserved.values()) + ['IDENTIFICADOR',  'FLOTANTE', 'ENTERO', 'CADENA', 'ASIGNACION', 'IGUALIGUAL', 'MENORIGUAL', 'MAYORIGUAL', 'DIFERENTE']
 
 literals = ['(', ')', '[', ']', '+', '-', '*', '/', ':', ';', '<', '>', ',']
 
