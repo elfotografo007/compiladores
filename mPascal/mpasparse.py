@@ -5,7 +5,8 @@ Created on 06/01/2012
 '''
 #mpasparse.py
 #Analizador Sintactico para mPascal
-from Nodo import Nodo
+from Nodo import Nodo, NodoEstructuraFuncion, NodoIdentificador, NodoArguments,\
+    NodoArg, NodoTipo, NodoIndex
 from pascallex import tokens
 
 
@@ -23,23 +24,23 @@ def p_declaraciones_funcion2(p):
 
 def p_estructura_funcion1(p):
     "estructura_funcion : FUN IDENTIFICADOR '(' arguments ')' locals BEGIN declaraciones END"
-    p[0] = Nodo('estructura_funcion', [p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9]])
+    p[0] = NodoEstructuraFuncion(identificador = NodoIdentificador(p[2]), arguments = p[4], locals = Nodo('locals', [p[6]]), declaraciones = Nodo('declaraciones', [p[8]]))
 
 def p_estructura_funcion2(p):
     "estructura_funcion : FUN IDENTIFICADOR '(' ')' locals BEGIN declaraciones END"
-    p[0] = Nodo('estructura_funcion', [p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8]])
+    p[0] = NodoEstructuraFuncion(identificador = NodoIdentificador(p[2]), locals = Nodo('locals', [p[5]]), declaraciones = Nodo('declaraciones', [p[7]]))
 
 def p_arguments1(p):
     "arguments : arguments ',' arg"
-    p[0] = Nodo('arguments',[p[1], p[2]])
+    p[0] = NodoArguments(p[3], p[1])
     
 def p_arguments2(p):
     'arguments : arg'
-    p[0] = p[1]
+    p[0] = NodoArguments(p[1])
 
 def p_arg(p):
     "arg : IDENTIFICADOR ':' tipo"
-    p[0] = Nodo('arg', [p[1], p[2], p[3]])
+    p[0] = NodoArg(NodoIdentificador(p[1]), p[3])
 
 def p_locals1(p):
     'locals : empty'
@@ -63,19 +64,19 @@ def p_locals5(p):
 
 def p_tipo1(p):
     'tipo : INT'
-    p[0] = p[1]
+    p[0] = NodoTipo(p[1])
     
 def p_tipo2(p):
     'tipo : FLOAT'
-    p[0] = p[1]
+    p[0] = NodoTipo(p[1])
 
 def p_tipo3(p):
     "tipo : INT '[' index ']'"
-    p[0] = Nodo('tipo', [p[1], p[2], p[3], p[4]])
+    p[0] = NodoTipo(p[1], p[3])
     
 def p_tipo4(p):
     "tipo : FLOAT '[' index ']'"
-    p[0] = Nodo('tipo', [p[1], p[2], p[3], p[4]])
+    p[0] = NodoTipo(p[1], p[3])
 
 def p_stmts1(p):
     "stmts : BEGIN declaraciones ';' instruccion END"
@@ -316,7 +317,7 @@ def p_index1(p):
     
 def p_index2(p):
     'index : ENTERO'
-    p[0]=p[1]
+    p[0]=NodoIndex(p[1])
     
 def p_literal1(p):
     'literal : IDENTIFICADOR'
