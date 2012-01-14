@@ -11,7 +11,7 @@ from pascallex import tokens
 
 def p_programa(p):
     'programa : declaraciones_funcion'
-    p[0] = p[1]
+    p[0] = Nodo('programa', [p[1]])
 
 def p_declaraciones_funcion1(p):
     'declaraciones_funcion : declaraciones_funcion estructura_funcion'
@@ -19,7 +19,7 @@ def p_declaraciones_funcion1(p):
 
 def p_declaraciones_funcion2(p):
     'declaraciones_funcion : estructura_funcion'
-    p[0] = p[1]
+    p[0] = Nodo('declaraciones_funcion', [p[1]])
 
 def p_estructura_funcion1(p):
     "estructura_funcion : FUN IDENTIFICADOR '(' arguments ')' locals BEGIN declaraciones END"
@@ -348,15 +348,28 @@ def p_error(p):
     else:
         print("Error de sintaxis al fin de linea")
 
+import sys
 import ply.yacc as yacc
 yacc.yacc()
 
-while 1:
-    try:
-        s = raw_input('Entrada > ')
-    except EOFError:
-        break
-    if not s: continue
-    root = yacc.parse(s)
+def parse(data):       
+    root = yacc.parse(data)
     if root:
         root.imprimir(1)
+
+try:
+    filename = sys.argv[1]
+    f = open(filename)
+    data = f.read()
+    f.close()
+    parse(data)
+except IndexError:
+    while 1:
+        try:
+            data = raw_input('Entrada > ')
+        except EOFError:
+            break
+        if not data: continue
+        parse(data)
+
+
