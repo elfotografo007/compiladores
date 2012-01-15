@@ -6,7 +6,9 @@ Created on 06/01/2012
 #mpasparse.py
 #Analizador Sintactico para mPascal
 from Nodo import Nodo, NodoEstructuraFuncion, NodoIdentificador, NodoArguments,\
-    NodoArg, NodoTipo, NodoIndex, NodoLocals, NodoDeclaraciones
+    NodoArg, NodoTipo, NodoIndex, NodoLocals, NodoDeclaraciones, NodoStmts,\
+    NodoWhile, NodoIf, NodoIfElse, NodoAsign, NodoExpression, NodoTerm,\
+    NodoFactor, NodoUnario, NodoLiteral, NodoNumero, NodoOperador
 from pascallex import tokens
 
 
@@ -80,11 +82,11 @@ def p_tipo4(p):
 
 def p_stmts1(p):
     "stmts : BEGIN declaraciones ';' instruccion END"
-    p[0] = Nodo('estructura_funcion', [p[0], p[1], p[2], p[3], p[4], p[5]])
+    p[0] = NodoStmts(p[4], p[2])
 
 def p_stmts2(p):
     'stmts : instruccion'
-    p[0] = p[1]
+    p[0] = NodoStmts(p[1])
 
 def p_declaraciones1(p):
     "declaraciones : declaraciones ';' instruccion"
@@ -140,43 +142,43 @@ def p_instruccion11(p):
 
 def p_str_while(p):
     'str_while : WHILE relation DO stmts'
-    p[0]=Nodo('str_while',[p[1],p[2],p[3],p[4]])
+    p[0]= NodoWhile(p[2], p[4])
 
 def p_str_if(p):
     'str_if : IF relation THEN stmts'
-    p[0]=Nodo('str_if',[p[1],p[2],p[3],p[4]])
+    p[0]=NodoIf(p[2],p[4])
 
 def p_str_if_else(p):
     'str_if_else : IF relation THEN stmts ELSE stmts'
-    p[0]=Nodo('str_if',[p[1],p[2],p[3],p[4],p[5],p[6]])
+    p[0]=NodoIfElse(p[2], p[4], p[6])
 
 def p_asign(p):
     'asign : location ASIGNACION expression'
-    p[0]=Nodo('asign',[p[1],p[2],p[3]])
+    p[0]=NodoAsign(p[1], p[3])
 
 def p_str_print(p):
     "str_print : PRINT '(' literal ')'"
-    p[0]=Nodo('str_print',[p[1],p[2],p[3],p[4]])
+    p[0]=Nodo('str_print',[p[3]])
     
 def p_str_write(p):
     "str_write : WRITE '(' expression ')'"
-    p[0]=Nodo('str_write',[p[1],p[2],p[3],p[4]])
+    p[0]=Nodo('str_write',[p[3]])
 
 def p_str_read(p):
     "str_read : READ '(' location ')'"
-    p[0]=Nodo('str_read',[p[1],p[2],p[3],p[4]])
+    p[0]=Nodo('str_read',[p[3]])
     
 def p_str_return(p):
     'str_return : RETURN expression'
-    p[0]=Nodo('str_return',p[1],p[2])
+    p[0]=Nodo('str_return',[p[2]])
 
 def p_llamada1(p):
     "llamada : IDENTIFICADOR '(' exprlist ')' "
-    p[0]=Nodo('llamada',[p[1],p[2],p[3],p[4]])
+    p[0]=Nodo('llamada',[NodoIdentificador(p[1]), p[3]])
 
 def p_llamada2(p):
     "llamada : IDENTIFICADOR '(' ')'"
-    p[0]=Nodo('llamada',[p[1],p[2],p[3]])
+    p[0]=Nodo('llamada',[NodoIdentificador(p[1])])
     
 def p_relation1(p):
     'relation : expr_or'
@@ -249,71 +251,71 @@ def p_exprlist2(p):
       
 def p_expression1(p):
     'expression : expression opsuma term'    
-    p[0]=Nodo('expression',[p[1],p[2],p[3]])
+    p[0]=NodoExpression(p[3], p[2], p[1])
     
 def p_expression2(p):
     'expression : term'    
-    p[0]=p[1]
+    p[0]=NodoExpression(p[1])
 
 def p_opsuma1(p):
     "opsuma : '+'"
-    p[0]=p[1]
+    p[0]=NodoOperador(p[1])
 
 def p_opsuma2(p):
     "opsuma : '-'"
-    p[0]=p[1]
+    p[0]=NodoOperador(p[1])
 
 def p_term1(p):
     'term : term opmult factor'    
-    p[0]=Nodo('term',[p[1],p[2],p[3]])
+    p[0]= NodoTerm(p[3], p[2], p[1])
     
 def p_term2(p):
     'term : factor'    
-    p[0]=p[1]
+    p[0]= NodoTerm(p[1])
     
 def p_opmult1(p):
     "opmult : '*'"
-    p[0]=p[1]
+    p[0]=NodoOperador(p[1])
     
 def p_opmult2(p):
     "opmult : '/'"
-    p[0]=p[1]
+    p[0]=NodoOperador(p[1])
     
 def p_factor1(p):
     "factor : '(' expression ')'"
-    p[0]=Nodo('factor',[p[1],p[2],p[3]])
+    p[0]=NodoFactor(p[2])
     
 def p_factor2(p):
     'factor : numero'
-    p[0]=p[1]
+    p[0]= NodoFactor(p[1])
     
 def p_factor3(p):
     "factor : '-' expression"
-    p[0]=Nodo('factor',[p[1],p[2]])
+    p[0]= NodoFactor(NodoUnario(p[1], p[2]))
 
 def p_factor4(p):
     "factor : '+' expression"
-    p[0]=Nodo('factor',[p[1],p[2]])
+    p[0]= NodoFactor(NodoUnario(p[1], p[2]))
     
 def p_factor5(p):
     'factor : llamada'
-    p[0]=p[1]
+    p[0]= NodoFactor(p[1])
     
 def p_factor6(p):
     'factor : location'
-    p[0]=p[1]
+    p[0]= NodoFactor(p[1])
     
 def p_location1(p):
     'location : IDENTIFICADOR'
-    p[0]=p[1]
+    p[0]= NodoIdentificador(p[1])
     
 def p_location2(p):
     "location : IDENTIFICADOR '[' index ']'"
-    p[0]=Nodo('location',[p[1],p[2],p[3],p[4]])
+    p[0]=NodoIdentificador(p[1], p[3])
 
 def p_index1(p):
     'index : expression'
-    p[0]=p[1]
+    p[0]=NodoIndex(p[1])
     
 def p_index2(p):
     'index : ENTERO'
@@ -321,23 +323,23 @@ def p_index2(p):
     
 def p_literal1(p):
     'literal : IDENTIFICADOR'
-    p[0]=p[1]
+    p[0]= NodoLiteral(NodoIdentificador(p[1]))
 
 def p_literal2(p):
     'literal : numero'
-    p[0]=p[1]        
+    p[0]= NodoLiteral(p[1])       
 
 def p_literal3(p):
     'literal : CADENA'
-    p[0]=p[1]
+    p[0]= NodoLiteral(p[1])  
     
 def p_numero1(p):
     'numero : ENTERO'
-    p[0]=p[1]
+    p[0]=NodoNumero(p[1])
 
 def p_numero2(p):
     'numero : FLOTANTE'
-    p[0]=p[1]
+    p[0]=NodoNumero(p[1])
     
 def p_empty(p):
     'empty :'
