@@ -47,21 +47,23 @@ class NodoArguments(Nodos):
     def __init__(self, arg, arguments = None):
         self.arg = arg
         self.arguments = arguments
-    def imprimir(self, nivel):
+    def imprimir(self, nivel, flag = True):
         if self.arguments:
-            self.arguments.imprimir(nivel)
-        print '  ' * (nivel) , '+--',
-        self.arg.imprimir(nivel + 1)
+            if flag:
+                print '  ' * (nivel) , '+--','arguments'
+            self.arguments.imprimir((nivel), False)
+        print '  ' * (nivel+1) , '+--',
+        self.arg.imprimir(nivel+1)
         
 class NodoArg(Nodos):
     def __init__(self, identificador, tipo):
         self.identificador = identificador
         self.tipo = tipo
     def imprimir(self, nivel):
-        print 'arg', '\n','  ' * nivel, '+--', 
+        print 'arg', '\n','  ' * (nivel+ 1), '+--', 
         self.identificador.imprimir(nivel)
-        print '  ' * nivel, '+--', 
-        self.tipo.imprimir(nivel)
+        print '  ' * (nivel+1), '+--', 
+        self.tipo.imprimir(nivel+1)
         
 class NodoTipo(Nodos):
     def __init__(self, tipo, index = None):
@@ -83,3 +85,27 @@ class NodoIndex(Nodos):
         else:
             print 'index', '\n','  ' * (nivel + 1) , '  ','|-',
             print self.index
+            
+class NodoLocals(Nodos):
+    def __init__(self, arg, locals = None):
+        self.arg = arg
+        self.locals = locals
+    def imprimir(self, nivel, flag = True):
+        if self.locals:
+            if flag:
+                print '  ' * (nivel) , '+--','locals'
+            self.locals.imprimir((nivel), False)
+        print '  ' * (nivel+1) , '+--',
+        self.arg.imprimir(nivel+1)
+    
+class NodoDeclaraciones(Nodos):
+    def __init__(self, instruccion, declaraciones = None):
+        self.instruccion = instruccion
+        self.declaraciones = declaraciones
+    def imprimir(self, nivel, flag = True):
+        if self.declaraciones:
+            if flag:
+                print '  ' * (nivel) , '+--','declaraciones'
+            self.declaraciones.imprimir((nivel), False)
+        print '  ' * (nivel+1) , '+--',
+        self.instruccion.imprimir(nivel+1)
