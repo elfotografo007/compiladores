@@ -16,7 +16,7 @@ class Nodo(Nodos):
     def imprimir(self, nivel):
         print self.etiqueta
         for i in self.hojas:
-            print '  ' * nivel, '+--',
+            print '  ' * (nivel + 1), '+--',
             if isinstance(i, Nodos):    
                 i.imprimir(nivel + 1)
             else:
@@ -235,8 +235,69 @@ class NodoOperador(Nodos):
     def __init__(self, op):
         self.op = op
     def imprimir(self, nivel):
-        print 'op', '\n', '  ' * (nivel + 1) , '+--', self.op
+        print 'op', '\n', '  ' * (nivel + 1) , '|--', self.op
         
+class NodoRelation(Nodos):
+    def __init__(self, expression):
+        self.expression = expression
+    def imprimir(self, nivel):
+        print 'relation', '\n', '  ' * (nivel + 1) , '+--',
+        if isinstance(self.expression, Nodos):    
+            self.expression.imprimir(nivel+1)
+        else:
+            print self.expression       
+  
+class NodoExpr_Or(Nodos):
+    def __init__(self, expr_and, op=None, expr_or=None):
+        self.expr_and = expr_and
+        self.op = op
+        self.expr_or = expr_or
+    def imprimir(self, nivel):
+        print 'expr_or', '\n', '  ' * (nivel + 1) , '+--',
+        if self.expr_or:
+            self.expr_or.imprimir(nivel + 1)
+        if self.op:
+            print '  ' * nivel, '  +--', 
+            self.op.imprimir(nivel + 1)
+            print '  ' * (nivel + 1) , '+--',
+        self.expr_and.imprimir(nivel + 1)        
+     
+class NodoExpr_And(Nodos):
+    def __init__(self, expr_not, op=None, expr_and=None):
+        self.expr_not = expr_not
+        self.op = op
+        self.expr_and = expr_and
+    def imprimir(self, nivel):
+        print 'expr_and', '\n', '  ' * (nivel + 1) , '+--',
+        if self.expr_and:
+            self.expr_and.imprimir(nivel + 1)
+        if self.op:
+            print '  ' * nivel, '  +--', 
+            self.op.imprimir(nivel + 1)
+            print '  ' * (nivel + 1) , '+--',
+        self.expr_not.imprimir(nivel + 1)      
         
+class NodoComparacion(Nodos):
+    def __init__(self, expression1, op=None, expression2=None):
+        self.expression1 = expression1
+        self.op = op
+        self.expression2 = expression2
+    def imprimir(self, nivel):
+        print 'comparacion', '\n', '  ' * (nivel + 1) , '+--',
+        self.expression1.imprimir(nivel + 1)
+        print '  ' * nivel, '  +--', 
+        self.op.imprimir(nivel + 1)
+        print '  ' * (nivel + 1) , '+--',
+        self.expression2.imprimir(nivel + 1)     
         
-        
+class NodoExprList(Nodos):
+    def __init__(self, expression, exprlist = None):
+        self.expression = expression
+        self.exprlist = exprlist
+    def imprimir(self, nivel, flag = True):
+        if self.exprlist:
+            if flag:
+                print '  ' * (nivel) , '+--','exprlist'
+            self.exprlist.imprimir((nivel), False)
+        print '  ' * (nivel+1) , '+--',
+        self.expression.imprimir(nivel+1) 

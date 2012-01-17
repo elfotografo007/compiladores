@@ -8,7 +8,8 @@ Created on 06/01/2012
 from Nodo import Nodo, NodoEstructuraFuncion, NodoIdentificador, NodoArguments,\
     NodoArg, NodoTipo, NodoIndex, NodoLocals, NodoDeclaraciones, NodoStmts,\
     NodoWhile, NodoIf, NodoIfElse, NodoAsign, NodoExpression, NodoTerm,\
-    NodoFactor, NodoUnario, NodoLiteral, NodoNumero, NodoOperador
+    NodoFactor, NodoUnario, NodoLiteral, NodoNumero, NodoOperador, NodoExpr_Or,\
+    NodoExpr_And, NodoComparacion, NodoRelation, NodoExprList
 from pascallex import tokens
 
 
@@ -182,72 +183,72 @@ def p_llamada2(p):
     
 def p_relation1(p):
     'relation : expr_or'
-    p[0]=p[1]
+    p[0]=NodoRelation(p[1])
     
 def p_relation2(p):
     "relation : '(' relation ')' "
-    p[0]=Nodo('relation',[p[1],p[2],p[3]])
+    p[0]=p[1]
 
 def p_expr_or1(p):
     'expr_or : expr_and'
-    p[0] = p[1]
+    p[0] = NodoExpr_Or(p[1])
 
 def p_expr_or2(p):
     'expr_or : expr_or OR expr_and'
-    p[0]=Nodo('expr_or',[p[1],p[2],p[3]])
+    p[0]=NodoExpr_Or(p[3], p[2], p[1])
     
 def p_expr_and1(p):
     'expr_and : expr_not'
-    p[0] = p[1]
+    p[0] = NodoExpr_And(p[1])
     
 def p_expr_and2(p):
     'expr_and : expr_and AND expr_not'
-    p[0]=Nodo('expr_and',[p[1],p[2],p[3]])
+    p[0]=NodoExpr_And(p[3], p[2], p[1])
     
 def p_expr_not1(p):
     'expr_not : comparacion'
-    p[0] = p[1]
+    p[0] = Nodo('expr_not', [p[1]])
     
 def p_expr_not2(p):
     'expr_not : NOT comparacion'
-    p[0]=Nodo('expr_not',[p[1],p[2]])
+    p[0]=Nodo('expr_not',[NodoUnario(p[1], p[2])])
     
 def p_comparacion(p):
     'comparacion : expression oprel expression'
-    p[0]=Nodo('comparacion',[p[1],p[2],p[3]])
+    p[0]= NodoComparacion(p[1], p[2],p[3])
     
     
 def p_oprel1(p):
     "oprel : '<'"
-    p[0]=p[1]
+    p[0]=NodoOperador(p[1])
 
 def p_oprel2(p):
     "oprel : '>'"
-    p[0]=p[1]
+    p[0]=NodoOperador(p[1])
 
 def p_oprel3(p):
     'oprel : MENORIGUAL'
-    p[0]=p[1]
+    p[0]=NodoOperador(p[1])
 
 def p_oprel4(p):
     'oprel : MAYORIGUAL'
-    p[0]=p[1]
+    p[0]=NodoOperador(p[1])
     
 def p_oprel5(p):
     'oprel : IGUALIGUAL'
-    p[0]=p[1]
+    p[0]=NodoOperador(p[1])
     
 def p_oprel6(p):
     'oprel : DIFERENTE'
-    p[0]=p[1]
+    p[0]=NodoOperador(p[1])
     
 def p_exprlist1(p):
     "exprlist : exprlist ',' expression"
-    p[0]=Nodo('exprlist',[p[1],p[2],p[3]])
+    p[0]= NodoExprList(p[3], p[1])
     
 def p_exprlist2(p):
     'exprlist : expression'
-    p[0]=p[1]
+    p[0]= NodoExprList(p[1])
       
 def p_expression1(p):
     'expression : expression opsuma term'    
