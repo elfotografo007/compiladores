@@ -297,7 +297,7 @@ class NodoExprList(Nodos):
     def imprimir(self, nivel, flag = True):
         if self.exprlist:
             if flag:
-                print '  ' * (nivel) , '+--','exprlist'
+                print 'exprlist'
             self.exprlist.imprimir((nivel), False)
         print '  ' * (nivel+1) , '+--',
         self.expression.imprimir(nivel+1) 

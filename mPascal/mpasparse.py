@@ -348,7 +348,7 @@ def p_empty(p):
 
 def p_error(p):
     if p:
-        print("Error de sintaxis en '%s'" % p.value)
+        print("Error de sintaxis cerca de '%s' en la linea %d" % (p.value,p.lineno) )
     else:
         print("Error de sintaxis al fin de linea")
 
