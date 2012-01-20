@@ -356,6 +356,9 @@ import sys
 import ply.yacc as yacc
 yacc.yacc()
 
+#Aumentar el limite de recursion para entradas muy grandes
+sys.setrecursionlimit(5000)
+
 def parse(data):       
     root = yacc.parse(data)
     if root:
