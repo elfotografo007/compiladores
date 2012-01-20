@@ -41,12 +41,14 @@ def t_error_comentario1(t):
     print "Se ha encontrado un comentario sin cerrar : ", t.value, " en linea ", t.lineno
     t.lexer.skip(1)
     t.lexer.lineno += 1
+    raise Exception('Error lexico')
     
 def t_error_comentario2(t):
     r"\*/"
     print "Se ha encontrado un comentario mal formado : ", t.value, " en linea ", t.lineno
     t.lexer.skip(1)
     t.lexer.lineno += 1
+    raise Exception('Error lexico')
     
 #def t_error_flotante(t):
 #    r".*\..*\.+.* | \d+\.\d+e(\+\++ | --+)\d+ | \d+e(\+\++ | --+)\d+ | \..* | .*e[+-]?0.* | .*\.e.*"
@@ -61,6 +63,7 @@ def t_FLOTANTE(t):
         t.value = 0
         t.lexer.skip(1)
         t.lexer.lineno += 1
+        raise Exception('Error lexico')
     #try:
      #   t.value = float(t.value)
     #except ValueError:
@@ -73,6 +76,7 @@ def t_error_identificador(t):
     print "Se ha encontrado un Identificador mal formado: ", t.value, " en linea ", t.lineno
     t.lexer.skip(1)
     t.lexer.lineno += 1
+    raise Exception('Error lexico')
 
 def t_ENTERO(t):
     r"\d+"
@@ -111,7 +115,8 @@ def t_error_cadena(t):
     print "Cadena mal formada: ", t.value, " en linea ", t.lineno
     t.lexer.skip(1)
     t.lexer.lineno += 1
-        
+    raise Exception('Error lexico')
+    
 def t_IDENTIFICADOR(t):
     r"[_a-zA-Z][_a-zA-Z\d]*"
     #Verifica que no sea una palabra reservada. Si t.value esta en reserved lo asigna, si no, lo deja como identificador
@@ -126,6 +131,7 @@ def t_newline(t):
 def t_error(t):
     print "Error, no se identifica  ", t.value[0], "en linea ", t.lineno
     t.lexer.skip(1)
+    raise Exception('Error lexico')
 
 lex.lex()
 

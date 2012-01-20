@@ -188,7 +188,7 @@ def p_relation1(p):
     
 def p_relation2(p):
     "relation : '(' relation ')' "
-    p[0]=p[1]
+    p[0]=p[2]
 
 def p_expr_or1(p):
     'expr_or : expr_and'
@@ -196,16 +196,16 @@ def p_expr_or1(p):
 
 def p_expr_or2(p):
     'expr_or : expr_or OR expr_and'
-    p[0]=NodoExpr_Or(p[3], NodoOperador(p[2]), p[1])
-    
+    p[0]=NodoExpr_Or(p[3], NodoOperador(p[2]), p[1])   
+
 def p_expr_and1(p):
     'expr_and : expr_not'
     p[0] = NodoExpr_And(p[1])
     
 def p_expr_and2(p):
     'expr_and : expr_and AND expr_not'
-    p[0]=NodoExpr_And(p[3], NodoOperador(p[2]), p[1])
-    
+    p[0]=NodoExpr_And(p[3], NodoOperador(p[2]), p[1])    
+
 def p_expr_not1(p):
     'expr_not : comparacion'
     p[0] = Nodo('expr_not', [p[1]])
@@ -213,11 +213,10 @@ def p_expr_not1(p):
 def p_expr_not2(p):
     'expr_not : NOT comparacion'
     p[0]=Nodo('expr_not',[NodoUnario(p[1], p[2])])
-    
-def p_comparacion(p):
+
+def p_comparacion1(p):
     'comparacion : expression oprel expression'
     p[0]= NodoComparacion(p[1], p[2],p[3])
-    
     
 def p_oprel1(p):
     "oprel : '<'"
@@ -372,17 +371,20 @@ yacc.yacc()
 #Aumentar el limite de recursion para entradas muy grandes
 sys.setrecursionlimit(5000)
 
-def parse(data):       
-    root = yacc.parse(data)
-    if root:
-        root.imprimir(1)
-
+def parse(data):
+    try:
+        root = yacc.parse(data)
+        if root:
+            root.imprimir(1)
+    except Exception:
+        sys.exit()
 try:
     filename = sys.argv[1]
     f = open(filename)
     data = f.read()
     f.close()
     parse(data)
+    
 except IndexError:
     while 1:
         try:
@@ -391,5 +393,7 @@ except IndexError:
             break
         if not data: continue
         parse(data)
+
+    
 
 
