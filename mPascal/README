@@ -7,3 +7,9 @@ Andrés Felipe Torres Cano
 
 Esteban Santa García
 1.093.219.099
+
+IMPORTANTE: En la línea 373 del archivo mpasparse.py se modificó el 
+límite de recursión por defecto de python para poder imprimir árboles 
+con profundidad alta. Este límite es dependiente del sistema operativo,
+por lo tanto ante cualquier error que involucre profundidad de recursión,
+solamente hay que cambiar este límite.
