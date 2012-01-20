@@ -52,9 +52,9 @@ class NodoArguments(Nodos):
         self.arg = arg
         self.arguments = arguments
     def imprimir(self, nivel, flag = True):
-        if self.arguments:
-            if flag:
+        if flag:
                 print '  ' * (nivel) , '+--','arguments'
+        if self.arguments:
             self.arguments.imprimir((nivel), False)
         print '  ' * (nivel+1) , '+--',
         self.arg.imprimir(nivel+1)
@@ -95,9 +95,9 @@ class NodoLocals(Nodos):
         self.arg = arg
         self.locals = locals
     def imprimir(self, nivel, flag = True):
-        if self.locals:
-            if flag:
+        if flag:
                 print '  ' * (nivel) , '+--','locals'
+        if self.locals:
             self.locals.imprimir((nivel), False)
         print '  ' * (nivel+1) , '+--',
         self.arg.imprimir(nivel+1)
