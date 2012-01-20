@@ -345,7 +345,7 @@ def p_literal2(p):
 
 def p_literal3(p):
     'literal : CADENA'
-    p[0]= NodoLiteral(p[1])  
+    p[0]= NodoLiteral(Nodo('CADENA', [p[1]]))  
     
 def p_numero1(p):
     'numero : ENTERO'
