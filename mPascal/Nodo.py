@@ -302,3 +302,14 @@ class NodoExprList(Nodos):
             self.exprlist.imprimir((nivel), False)
         print '  ' * (nivel+1) , '+--',
         self.expression.imprimir(nivel+1) 
+        
+class NodoConversionTipo(Nodos):
+    def __init__(self, tipo, expression):
+        self.tipo = tipo
+        self.expression = expression
+    def imprimir(self, nivel):
+        print 'conversion_tipo'
+        print '  ' * nivel, '   +--',
+        self.tipo.imprimir(nivel + 1)
+        print '  ' * nivel, '   +--', 
+        self.expression.imprimir(nivel + 1)

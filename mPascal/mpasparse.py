@@ -9,7 +9,8 @@ from Nodo import Nodo, NodoEstructuraFuncion, NodoIdentificador, NodoArguments,\
     NodoArg, NodoTipo, NodoIndex, NodoLocals, NodoDeclaraciones, NodoStmts,\
     NodoWhile, NodoIf, NodoIfElse, NodoAsign, NodoExpression, NodoTerm,\
     NodoFactor, NodoUnario, NodoLiteral, NodoNumero, NodoOperador, NodoExpr_Or,\
-    NodoExpr_And, NodoComparacion, NodoRelation, NodoExprList
+    NodoExpr_And, NodoComparacion, NodoRelation, NodoExprList,\
+    NodoConversionTipo
 from pascallex import tokens
 
 
@@ -305,6 +306,10 @@ def p_factor5(p):
 def p_factor6(p):
     'factor : location'
     p[0]= NodoFactor(p[1])
+
+def p_factor7(p):
+    'factor : conversion_tipo'
+    p[0]= NodoFactor(p[1])
     
 def p_location1(p):
     'location : IDENTIFICADOR'
@@ -314,6 +319,14 @@ def p_location2(p):
     "location : IDENTIFICADOR '[' index ']'"
     p[0]=NodoIdentificador(p[1], p[3])
 
+def p_conversion_tipo1(p):
+    "conversion_tipo : INT '(' expression ')' "
+    p[0] = NodoConversionTipo(NodoTipo(p[1]), p[3])
+    
+def p_conversion_tipo2(p):
+    "conversion_tipo : FLOAT '(' expression ')' "
+    p[0] = NodoConversionTipo(NodoTipo(p[1]), p[3])
+    
 def p_index1(p):
     'index : expression'
     p[0]=NodoIndex(p[1])
