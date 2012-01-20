@@ -99,47 +99,47 @@ def p_declaraciones2(p):
 
 def p_instruccion1(p):
     "instruccion : str_while"
-    p[0] = p[1]
+    p[0] = Nodo('instruccion', [p[1]])
     
 def p_instruccion2(p):
     "instruccion : str_if"
-    p[0] = p[1]
+    p[0] = Nodo('instruccion', [p[1]])
 
 def p_instruccion3(p):
     "instruccion : str_if_else"
-    p[0] = p[1]
+    p[0] = Nodo('instruccion', [p[1]])
 
 def p_instruccion4(p):
     "instruccion : asign"
-    p[0] = p[1]
+    p[0] = Nodo('instruccion', [p[1]])
 
 def p_instruccion5(p):
     "instruccion : str_print"
-    p[0] = p[1]
+    p[0] = Nodo('instruccion', [p[1]])
     
 def p_instruccion6(p):
     "instruccion : str_write"
-    p[0] = p[1]
+    p[0] = Nodo('instruccion', [p[1]])
 
 def p_instruccion7(p):
     "instruccion : str_read"
-    p[0] = p[1]
+    p[0] = Nodo('instruccion', [p[1]])
 
 def p_instruccion8(p):
     "instruccion : str_return"
-    p[0] = p[1]
+    p[0] = Nodo('instruccion', [p[1]])
 
 def p_instruccion9(p):
     "instruccion : llamada"
-    p[0] = p[1]
+    p[0] = Nodo('instruccion', [p[1]])
 
 def p_instruccion10(p):
     "instruccion : SKIP"
-    p[0] = p[1]
+    p[0] = Nodo('instruccion', [p[1]])
 
 def p_instruccion11(p):
     "instruccion : BREAK"
-    p[0] = p[1]
+    p[0] = Nodo('instruccion', [p[1]])
 
 def p_str_while(p):
     'str_while : WHILE relation DO stmts'
