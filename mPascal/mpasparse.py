@@ -196,7 +196,7 @@ def p_expr_or1(p):
 
 def p_expr_or2(p):
     'expr_or : expr_or OR expr_and'
-    p[0]=NodoExpr_Or(p[3], p[2], p[1])
+    p[0]=NodoExpr_Or(p[3], NodoOperador(p[2]), p[1])
     
 def p_expr_and1(p):
     'expr_and : expr_not'
@@ -204,7 +204,7 @@ def p_expr_and1(p):
     
 def p_expr_and2(p):
     'expr_and : expr_and AND expr_not'
-    p[0]=NodoExpr_And(p[3], p[2], p[1])
+    p[0]=NodoExpr_And(p[3], NodoOperador(p[2]), p[1])
     
 def p_expr_not1(p):
     'expr_not : comparacion'
