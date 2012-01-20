@@ -48,11 +48,11 @@ def t_error_comentario2(t):
     t.lexer.skip(1)
     t.lexer.lineno += 1
     
-def t_error_flotante(t):
-    r".*\..*\.+.* | \d+\.\d+e(\+\++ | --+)\d+ | \d+e(\+\++ | --+)\d+ | \..* | .*e[+-]?0.* | .*\.e.*"
-    print "Se ha encontrado un flotante mal formado: ", t.value, " en linea ", t.lineno
-    t.lexer.skip(1)
-    t.lexer.lineno += 1
+#def t_error_flotante(t):
+#    r".*\..*\.+.* | \d+\.\d+e(\+\++ | --+)\d+ | \d+e(\+\++ | --+)\d+ | \..* | .*e[+-]?0.* | .*\.e.*"
+#    print "Se ha encontrado un flotante mal formado: ", t.value, " en linea ", t.lineno
+#    t.lexer.skip(1)
+#    t.lexer.lineno += 1
     
 def t_FLOTANTE(t):
     r"(\d+\.\d+)([e][+-]?\d+)?| \d+[e][+-]?\d+"
