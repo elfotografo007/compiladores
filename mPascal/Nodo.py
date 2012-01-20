@@ -120,9 +120,9 @@ class NodoDeclaraciones(Nodos):
         self.instruccion = instruccion
         self.declaraciones = declaraciones
     def imprimir(self, nivel, flag = True):
-        if self.declaraciones:
-            if flag:
+        if flag:
                 print '  ' * (nivel) , '+--','declaraciones'
+        if self.declaraciones:
             self.declaraciones.imprimir((nivel), False)
         print '  ' * (nivel+1) , '+--',
         self.instruccion.imprimir(nivel+1)
