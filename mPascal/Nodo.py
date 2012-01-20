@@ -44,7 +44,8 @@ class NodoEstructuraFuncion(Nodos):
         self.identificador.imprimir(nivel + 1)
         if self.arguments:
             self.arguments.imprimir(nivel + 1)
-        self.locals.imprimir(nivel + 1)
+        if self.locals:
+            self.locals.imprimir(nivel + 1)
         self.declaraciones.imprimir(nivel + 1)
 
 class NodoArguments(Nodos):
