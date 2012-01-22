@@ -376,7 +376,8 @@ def parse(data):
         root = yacc.parse(data)
         if root:
             root.imprimir(1)
-    except Exception:
+    except Exception, e:
+        print e
         sys.exit()
 try:
     filename = sys.argv[1]
