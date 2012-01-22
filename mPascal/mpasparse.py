@@ -13,6 +13,16 @@ from Nodo import Nodo, NodoEstructuraFuncion, NodoIdentificador, NodoArguments,\
     NodoConversionTipo
 from pascallex import tokens
 
+precedence = (
+       ('left', '+', '-'),
+       ('left', '*', '/'),
+       ('right', 'UMINUS'),
+       ('right', 'UPLUS'),
+       ('right', 'NOT'),
+       ('left', '(', ')'),
+       ('left', '[', ']'),
+       ('right', 'ASIGNACION')
+             )
 
 def p_programa(p):
     'programa : declaraciones_funcion'
@@ -185,10 +195,6 @@ def p_llamada2(p):
 def p_relation1(p):
     'relation : expr_or'
     p[0]=NodoRelation(p[1])
-    
-def p_relation2(p):
-    "relation : '(' relation ')' "
-    p[0]=p[2]
 
 def p_expr_or1(p):
     'expr_or : expr_and'
@@ -211,12 +217,16 @@ def p_expr_not1(p):
     p[0] = Nodo('expr_not', [p[1]])
     
 def p_expr_not2(p):
-    'expr_not : NOT comparacion'
+    'expr_not : NOT relation'
     p[0]=Nodo('expr_not',[NodoUnario(p[1], p[2])])
 
 def p_comparacion1(p):
     'comparacion : expression oprel expression'
     p[0]= NodoComparacion(p[1], p[2],p[3])
+    
+def p_comparacion2(p):
+    "comparacion : '(' relation ')' "
+    p[0]= NodoComparacion(p[2])
     
 def p_oprel1(p):
     "oprel : '<'"
@@ -291,11 +301,11 @@ def p_factor2(p):
     p[0]= NodoFactor(p[1])
     
 def p_factor3(p):
-    "factor : '-' expression"
+    "factor : '-' expression %prec UMINUS"
     p[0]= NodoFactor(NodoUnario(p[1], p[2]))
 
 def p_factor4(p):
-    "factor : '+' expression"
+    "factor : '+' expression %prec UPLUS"
     p[0]= NodoFactor(NodoUnario(p[1], p[2]))
     
 def p_factor5(p):
@@ -328,11 +338,7 @@ def p_conversion_tipo2(p):
     
 def p_index1(p):
     'index : expression'
-    p[0]=NodoIndex(p[1])
-    
-def p_index2(p):
-    'index : ENTERO'
-    p[0]=NodoIndex(p[1])
+    p[0]=NodoIndex(p[1])   
     
 def p_literal1(p):
     'literal : IDENTIFICADOR'

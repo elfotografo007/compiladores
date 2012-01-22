@@ -287,10 +287,12 @@ class NodoComparacion(Nodos):
     def imprimir(self, nivel):
         print 'comparacion', '\n', '  ' * (nivel + 1) , '+--',
         self.expression1.imprimir(nivel + 1)
-        print '  ' * nivel, '  +--', 
-        self.op.imprimir(nivel + 1)
-        print '  ' * (nivel + 1) , '+--',
-        self.expression2.imprimir(nivel + 1)     
+        if self.op:
+            print '  ' * nivel, '  +--', 
+            self.op.imprimir(nivel + 1)
+        if self.expression2:
+            print '  ' * (nivel + 1) , '+--',
+            self.expression2.imprimir(nivel + 1)     
         
 class NodoExprList(Nodos):
     def __init__(self, expression, exprlist = None):
