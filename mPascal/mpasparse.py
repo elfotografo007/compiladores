@@ -404,7 +404,3 @@ except IndexError:
             break
         if not data: continue
         parse(data)
-
-    
-
-
