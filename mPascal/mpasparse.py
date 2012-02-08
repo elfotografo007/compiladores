@@ -151,6 +151,10 @@ def p_instruccion10(p):
 def p_instruccion11(p):
     "instruccion : BREAK"
     p[0] = p[1]
+    
+def p_instruccion12(p):
+    'instruccion : BEGIN declaraciones END'
+    p[0] = p[2]
 
 def p_str_while(p):
     'str_while : WHILE relation DO stmts'
