@@ -34,7 +34,7 @@ def p_declaraciones_funcion1(p):
 
 def p_declaraciones_funcion2(p):
     'declaraciones_funcion : estructura_funcion'
-    p[0] = Nodo('declaraciones_funcion', [p[1]])
+    p[0] = p[1]
 
 def p_estructura_funcion1(p):
     "estructura_funcion : FUN IDENTIFICADOR '(' arguments ')' locals BEGIN declaraciones END"
@@ -50,7 +50,7 @@ def p_arguments1(p):
     
 def p_arguments2(p):
     'arguments : arg'
-    p[0] = NodoArguments(p[1])
+    p[0] = p[1]
 
 def p_arg(p):
     "arg : IDENTIFICADOR ':' tipo"
@@ -70,11 +70,11 @@ def p_locals3(p):
 
 def p_locals4(p):
     "locals : arg ';'"
-    p[0] = NodoLocals(p[1])
+    p[0] = p[1]
 
 def p_locals5(p):
     "locals : declaraciones_funcion ';'"
-    p[0] = NodoLocals(p[1])
+    p[0] = p[1]
 
 def p_tipo1(p):
     'tipo : INT'
@@ -98,7 +98,7 @@ def p_stmts1(p):
 
 def p_stmts2(p):
     'stmts : instruccion'
-    p[0] = NodoStmts(p[1])
+    p[0] = p[1]
 
 def p_declaraciones1(p):
     "declaraciones : declaraciones ';' instruccion"
@@ -106,51 +106,51 @@ def p_declaraciones1(p):
 
 def p_declaraciones2(p):
     'declaraciones : instruccion'
-    p[0] = NodoDeclaraciones(p[1])
+    p[0] = p[1]
 
 def p_instruccion1(p):
     "instruccion : str_while"
-    p[0] = Nodo('instruccion', [p[1]])
+    p[0] = p[1]
     
 def p_instruccion2(p):
     "instruccion : str_if"
-    p[0] = Nodo('instruccion', [p[1]])
+    p[0] = p[1]
 
 def p_instruccion3(p):
     "instruccion : str_if_else"
-    p[0] = Nodo('instruccion', [p[1]])
+    p[0] = p[1]
 
 def p_instruccion4(p):
     "instruccion : asign"
-    p[0] = Nodo('instruccion', [p[1]])
+    p[0] = p[1]
 
 def p_instruccion5(p):
     "instruccion : str_print"
-    p[0] = Nodo('instruccion', [p[1]])
+    p[0] = p[1]
     
 def p_instruccion6(p):
     "instruccion : str_write"
-    p[0] = Nodo('instruccion', [p[1]])
+    p[0] = p[1]
 
 def p_instruccion7(p):
     "instruccion : str_read"
-    p[0] = Nodo('instruccion', [p[1]])
+    p[0] = p[1]
 
 def p_instruccion8(p):
     "instruccion : str_return"
-    p[0] = Nodo('instruccion', [p[1]])
+    p[0] = p[1]
 
 def p_instruccion9(p):
     "instruccion : llamada"
-    p[0] = Nodo('instruccion', [p[1]])
+    p[0] = p[1]
 
 def p_instruccion10(p):
     "instruccion : SKIP"
-    p[0] = Nodo('instruccion', [p[1]])
+    p[0] = p[1]
 
 def p_instruccion11(p):
     "instruccion : BREAK"
-    p[0] = Nodo('instruccion', [p[1]])
+    p[0] = p[1]
 
 def p_str_while(p):
     'str_while : WHILE relation DO stmts'
@@ -194,11 +194,11 @@ def p_llamada2(p):
     
 def p_relation1(p):
     'relation : expr_or'
-    p[0]=NodoRelation(p[1])
+    p[0]= p[1]
 
 def p_expr_or1(p):
     'expr_or : expr_and'
-    p[0] = NodoExpr_Or(p[1])
+    p[0] = p[1]
 
 def p_expr_or2(p):
     'expr_or : expr_or OR expr_and'
@@ -206,7 +206,7 @@ def p_expr_or2(p):
 
 def p_expr_and1(p):
     'expr_and : expr_not'
-    p[0] = NodoExpr_And(p[1])
+    p[0] = p[1]
     
 def p_expr_and2(p):
     'expr_and : expr_and AND expr_not'
@@ -214,7 +214,7 @@ def p_expr_and2(p):
 
 def p_expr_not1(p):
     'expr_not : comparacion'
-    p[0] = Nodo('expr_not', [p[1]])
+    p[0] = p[1]
     
 def p_expr_not2(p):
     'expr_not : NOT relation'
@@ -258,7 +258,7 @@ def p_exprlist1(p):
     
 def p_exprlist2(p):
     'exprlist : expression'
-    p[0]= NodoExprList(p[1])
+    p[0] = p[1]
       
 def p_expression1(p):
     'expression : expression opsuma term'    
@@ -266,7 +266,7 @@ def p_expression1(p):
     
 def p_expression2(p):
     'expression : term'    
-    p[0]=NodoExpression(p[1])
+    p[0] = p[1]
 
 def p_opsuma1(p):
     "opsuma : '+'"
@@ -282,7 +282,7 @@ def p_term1(p):
     
 def p_term2(p):
     'term : factor'    
-    p[0]= NodoTerm(p[1])
+    p[0] = p[1]
     
 def p_opmult1(p):
     "opmult : '*'"
@@ -294,11 +294,11 @@ def p_opmult2(p):
     
 def p_factor1(p):
     "factor : '(' expression ')'"
-    p[0]=NodoFactor(p[2])
+    p[0] = p[1]
     
 def p_factor2(p):
     'factor : numero'
-    p[0]= NodoFactor(p[1])
+    p[0] = p[1]
     
 def p_factor3(p):
     "factor : '-' expression %prec UMINUS"
@@ -310,19 +310,19 @@ def p_factor4(p):
     
 def p_factor5(p):
     'factor : llamada'
-    p[0]= NodoFactor(p[1])
+    p[0] = p[1]
     
 def p_factor6(p):
     'factor : location'
-    p[0]= NodoFactor(p[1])
+    p[0] = p[1]
 
 def p_factor7(p):
     'factor : conversion_tipo'
-    p[0]= NodoFactor(p[1])
+    p[0] = p[1]
     
 def p_location1(p):
     'location : IDENTIFICADOR'
-    p[0]= NodoIdentificador(p[1])
+    p[0] = p[1]
     
 def p_location2(p):
     "location : IDENTIFICADOR '[' index ']'"
@@ -338,19 +338,19 @@ def p_conversion_tipo2(p):
     
 def p_index1(p):
     'index : expression'
-    p[0]=NodoIndex(p[1])   
+    p[0] = p[1]   
     
 def p_literal1(p):
     'literal : IDENTIFICADOR'
-    p[0]= NodoLiteral(NodoIdentificador(p[1]))
+    p[0] = p[1]
 
 def p_literal2(p):
     'literal : numero'
-    p[0]= NodoLiteral(p[1])       
+    p[0] = p[1]      
 
 def p_literal3(p):
     'literal : CADENA'
-    p[0]= NodoLiteral(Nodo('CADENA', [p[1]]))  
+    p[0] = p[1] 
     
 def p_numero1(p):
     'numero : ENTERO'
@@ -381,7 +381,8 @@ def parse(data):
     try:
         root = yacc.parse(data)
         if root:
-            root.imprimir(1)
+            #root.imprimir(1)
+            pass
     except Exception:
         sys.exit()
 try:
