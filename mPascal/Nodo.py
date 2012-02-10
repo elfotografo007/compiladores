@@ -5,7 +5,8 @@ Created on 06/01/2012
 '''
 #Nodo.py
 class Nodos(object):
-    pass
+    def accept(self, visitante):
+        visitante.visiteme(self)
 
 class Nodo(Nodos):
     def __init__(self, etiqueta = ' ', hojas = []):
