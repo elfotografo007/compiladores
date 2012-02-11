@@ -359,12 +359,12 @@ def p_literal3(p):
 def p_numero1(p):
     'numero : ENTERO'
     p[0]=NodoNumero(p[1])
-    p[0].tipo = 'int'
+    p[0].datatype = 'int'
 
 def p_numero2(p):
     'numero : FLOTANTE'
     p[0]=NodoNumero(p[1])
-    p[0].tipo = 'float'
+    p[0].datatype = 'float'
     
 def p_empty(p):
     'empty :'
