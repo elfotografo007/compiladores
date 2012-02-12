@@ -33,7 +33,10 @@ class symtab(object):
         self.__current[llave] = {}
     
     def setAtributo(self, simbolo, llave, valor):
-        self.__ambitos[simbolo][llave] = valor
+        self.__current[simbolo][llave] = valor
+    
+    def getCurrent(self):
+        return self.__current
         
     
     

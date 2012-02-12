@@ -393,7 +393,8 @@ def parse(data):
             root.accept(VisitanteTabla())
             #root.imprimir(1)
             pass
-    except Exception:
+    except Exception,e:
+        print e
         sys.exit()
 try:
     filename = sys.argv[1]
