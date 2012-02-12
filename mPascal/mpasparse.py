@@ -326,7 +326,7 @@ def p_factor7(p):
     
 def p_location1(p):
     'location : IDENTIFICADOR'
-    p[0] = p[1]
+    p[0]= NodoIdentificador(p[1])
     
 def p_location2(p):
     "location : IDENTIFICADOR '[' index ']'"
