@@ -12,6 +12,7 @@ from Nodo import Nodo, NodoEstructuraFuncion, NodoIdentificador, NodoArguments,\
     NodoExpr_And, NodoComparacion, NodoRelation, NodoExprList,\
     NodoConversionTipo
 from pascallex import tokens
+from Visitante import VisitanteTabla
 
 precedence = (
        ('left', '+', '-'),
@@ -298,7 +299,7 @@ def p_opmult2(p):
     
 def p_factor1(p):
     "factor : '(' expression ')'"
-    p[0] = p[1]
+    p[0] = p[2]
     
 def p_factor2(p):
     'factor : numero'
@@ -389,6 +390,7 @@ def parse(data):
     try:
         root = yacc.parse(data)
         if root:
+            root.accept(VisitanteTabla())
             #root.imprimir(1)
             pass
     except Exception:
