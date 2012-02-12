@@ -335,10 +335,12 @@ def p_location2(p):
 def p_conversion_tipo1(p):
     "conversion_tipo : INT '(' expression ')' "
     p[0] = NodoConversionTipo(NodoTipo(p[1]), p[3])
+    p[0].datatype = 'int'
     
 def p_conversion_tipo2(p):
     "conversion_tipo : FLOAT '(' expression ')' "
     p[0] = NodoConversionTipo(NodoTipo(p[1]), p[3])
+    p[0].datatype = 'float'
     
 def p_index1(p):
     'index : expression'
