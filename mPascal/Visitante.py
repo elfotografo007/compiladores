@@ -8,6 +8,7 @@ from Nodo import Nodo, NodoEstructuraFuncion, NodoArguments, NodoArg, NodoLocals
     NodoDeclaraciones, NodoWhile, NodoIf, NodoIfElse, NodoAsign,\
     NodoIdentificador, NodoExprList, NodoExpression, NodoTerm, NodoFactor,\
     NodoUnario, NodoExpr_And, NodoExpr_Or, NodoComparacion
+from symbol import arglist
 
 class Visitante(object):
     '''
@@ -44,8 +45,21 @@ class VisitanteTabla(Visitante):
                 self.tabla.pushAmbito()
                 if objeto.arguments:
                     #TODO: recorrer los argumentos y entrarlos a la tabla
-                    #self.tabla.setAtributo(id, 'arguments', [])
+                    argsList = []
                     objeto.arguments.accept(self)
+                    temp = objeto.arguments
+                    flag2 = True
+                    while flag2:
+                        if isinstance(temp, NodoArguments):
+                            argsList.append({temp.arg.identificador.identificador : temp.arg.identificador.datatype})
+                            if temp.arguments:
+                                temp = temp.arguments
+                            else:
+                                flag2 = False
+                        else:
+                            argsList.append({temp.identificador.identificador : temp.identificador.datatype})
+                            flag2 = False
+                    objeto.ambito[id]['arguments'] = argsList
                 if objeto.locals:
                     objeto.locals.accept(self)
                 objeto.declaraciones.accept(self)
