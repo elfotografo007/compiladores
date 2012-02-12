@@ -70,11 +70,11 @@ def p_locals3(p):
 
 def p_locals4(p):
     "locals : arg ';'"
-    p[0] = p[1]
+    p[0] = NodoLocals(p[1])
 
 def p_locals5(p):
     "locals : declaraciones_funcion ';'"
-    p[0] = p[1]
+    p[0] = NodoLocals(p[1])
 
 def p_tipo1(p):
     'tipo : INT'
