@@ -25,9 +25,35 @@ class VisitanteTabla(Visitante):
                 for hoja in objeto.hojas:
                     hoja.accept(self)
                 print self.tabla.getCurrent()
-            if objeto.etiqueta in ['str_read','str_write', 'llamada', 'expr_not', 'declaraciones_funcion']:
+            if objeto.etiqueta in ['str_read','str_write', 'expr_not', 'declaraciones_funcion']:
                 for hoja in objeto.hojas:
                     hoja.accept(self)
+            if objeto.etiqueta == 'llamada':
+                id = None
+                count = 0
+                for hoja in objeto.hojas:
+                    if isinstance(hoja, NodoIdentificador):
+                        id = hoja.identificador
+                    elif isinstance(hoja, NodoExprList):
+                        temp = hoja
+                        flag2 = True
+                        while flag2:
+                            if isinstance(temp, NodoExprList):
+                                count = count + 1
+                                if temp.exprlist:
+                                    temp = temp.exprlist
+                                else:
+                                    flag2 = False
+                            else:
+                                flag2 = False
+                    else:
+                        count = count + 1
+                    hoja.accept(self)
+                flag, ambito = self.tabla.existe(id)
+                if flag:
+                    if len(ambito[id]['arguments']) != count:
+                        print 'error semantico. La funcion {0} espera {1} parametros y se le pasaron {2}'.format(id, len(ambito[id]['arguments']), count)
+                        
             if objeto.etiqueta == 'str_return':
                 pass
                 #TODO: acciones para el return
@@ -43,9 +69,8 @@ class VisitanteTabla(Visitante):
                 self.tabla.agregar(id)
                 self.tabla.setAtributo(id, 'tipo', 'funcion')
                 self.tabla.pushAmbito()
+                argsList = []
                 if objeto.arguments:
-                    #TODO: recorrer los argumentos y entrarlos a la tabla
-                    argsList = []
                     objeto.arguments.accept(self)
                     temp = objeto.arguments
                     flag2 = True
@@ -59,7 +84,8 @@ class VisitanteTabla(Visitante):
                         else:
                             argsList.append({temp.identificador.identificador : temp.identificador.datatype})
                             flag2 = False
-                    objeto.ambito[id]['arguments'] = argsList
+                objeto.ambito[id]['arguments'] = argsList
+                    
                 if objeto.locals:
                     objeto.locals.accept(self)
                 objeto.declaraciones.accept(self)
