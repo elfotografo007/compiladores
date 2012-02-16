@@ -139,4 +139,71 @@ class VisitanteTabla(Visitante):
                 objeto.expression2.accept(self)
         
                     
-
+class VisitanteTipo(Visitante):
+    def visiteme(self, objeto):
+        listaReturn = []
+        if isinstance(objeto, NodoComparacion): # comprueba el tipo en una expresion
+            objeto.expression1.accept(self)
+            objeto.expression2.accept(self)
+            
+            if objeto.expression1.datatype != objeto.expression2.datatype:
+                print "los tipod de dato no son equivalentes"
+                return
+        elif isinstance(objeto, NodoExpr_Or): # comprueba que los tipos e una operacion or sean iguales
+            if isinstance(objeto, NodoExpr_And): # comprueba los tipos de una exprecion and
+                
+                if isinstance(objeto, Nodo): # comprueba los tipos de una expresion not
+                    if objeto.etiqueta == 'expr_not':
+                        for hoja in objeto.hojas:
+                            hoja.accept(self)
+                    
+                else:
+                    objeto.expr_and.accept(self)# comprueba en el caso de la expresion and
+                    objeto.expr_not.accept(self)
+                    if objeto.expr_and.datatype != objeto.expr_not.datatype:
+                        print "los tipos de dato no son equivalentes"
+                        return
+                
+            else:
+                objeto.expr_or.accept(self) # comprueba en el caso de la expresion or
+                objeto.expr_and.accept(self)
+                if objeto.expr_or.datatype != objeto.expr_and.datatype:
+                    print "los tipos de dato no son equivalentes"
+                    return
+        elif isinstance(objeto, NodoExpression): # comprueba en el caso de una suma o resta
+            objeto.expression.accept(self)
+            objeto.term.accept(self)
+            if objeto.expression.datatype != objeto.term.datatype:
+                print "los tipos de dato no son equivalentes"
+                return
+        elif isinstance(objeto, NodoTerm):#compreba en el caso de una multiplicacion o division
+            objeto.term.accept(self)
+            objeto.factor.accept(self)
+            if objeto.term.datatype != objeto.factor.accept(self):
+                print "los tipos de dato no son equivalentes"
+                return
+        elif isinstance(objeto, Nodo): # comprueba el caso del return
+            if objeto.etiqueta == 'str_return':
+                for hoja in objeto.hojas:
+                    hoja.accept(self) 
+                listaReturn.append(objeto.datatype)
+        elif isinstance(objeto, NodoAsign):#comprueba la asignacion
+            if isinstance(objeto.location, NodoIdentificador):
+                if objeto.location.index != None: # comprueba cuando la asignacion es a un vector
+                    objeto.location.index.accept(self)
+                    objeto.expression.accept(self)
+                    if objeto.location.index.datatype != objeto.expression.datatype:
+                        print "los tipos de dato no son equivalentes"
+                        return
+                else:
+                    objeto.location.accept(self)
+                    objeto.expression.accept(self)
+                    if objeto.location.datatype != objeto.expression.datatype:
+                        print "los tipos de dato no son equivalentes"
+                        return
+             
+        if len(listaReturn) >= 2: # revisa la lista de returns para que sean del mismo tipo
+            for elemento in listaReturn:
+                if elemento != listaReturn[0]:
+                    print "los tiposde dato que se retornan son diferentes"
+                    return
