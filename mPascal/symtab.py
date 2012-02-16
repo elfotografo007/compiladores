@@ -37,6 +37,8 @@ class symtab(object):
     
     def getCurrent(self):
         return self.__current
+    def getAmbitos(self):
+        return self.__ambitos
         
     
     

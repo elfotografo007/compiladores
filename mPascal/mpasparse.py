@@ -263,7 +263,7 @@ def p_exprlist1(p):
     
 def p_exprlist2(p):
     'exprlist : expression'
-    p[0] = p[1]
+    p[0] = NodoExprList(p[1])
       
 def p_expression1(p):
     'expression : expression opsuma term'    

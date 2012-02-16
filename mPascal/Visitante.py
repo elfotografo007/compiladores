@@ -25,9 +25,13 @@ class VisitanteTabla(Visitante):
                 for hoja in objeto.hojas:
                     hoja.accept(self)
                 print self.tabla.getCurrent()
-            if objeto.etiqueta in ['str_read','str_write', 'expr_not', 'declaraciones_funcion']:
+            if objeto.etiqueta in ['str_write', 'declaraciones_funcion']:
                 for hoja in objeto.hojas:
                     hoja.accept(self)
+            if objeto.etiqueta in ['str_read', 'expr_not']:
+                for hoja in objeto.hojas:
+                    hoja.accept(self)
+                    objeto.datatype = hoja.datatype
             if objeto.etiqueta == 'llamada':
                 id = None
                 count = 0
@@ -53,10 +57,14 @@ class VisitanteTabla(Visitante):
                 if flag:
                     if len(ambito[id]['arguments']) != count:
                         print 'error semantico. La funcion {0} espera {1} parametros y se le pasaron {2}'.format(id, len(ambito[id]['arguments']), count)
-                        
+                if ambito[id].has_key('datatype'):
+                    objeto.datatype = ambito[id]['datatype']
+                
             if objeto.etiqueta == 'str_return':
-                pass
-                #TODO: acciones para el return
+                for hoja in objeto.hojas:
+                    hoja.accept(self)
+                    if hasattr(hoja, 'datatype'):
+                        objeto.datatype = hoja.datatype
         
         elif isinstance(objeto, NodoEstructuraFuncion):
             id = objeto.identificador.identificador
@@ -84,11 +92,38 @@ class VisitanteTabla(Visitante):
                         else:
                             argsList.append({temp.identificador.identificador : temp.identificador.datatype})
                             flag2 = False
-                objeto.ambito[id]['arguments'] = argsList
-                    
+                objeto.ambito[id]['arguments'] = argsList    
                 if objeto.locals:
                     objeto.locals.accept(self)
                 objeto.declaraciones.accept(self)
+                flag2 = True
+                encontrado = False
+                temp = objeto.declaraciones
+                while flag2:
+                    if isinstance(temp, NodoDeclaraciones):
+                        if isinstance(temp.instruccion, Nodo):
+                            if temp.instruccion.etiqueta == 'str_return':
+                                encontrado = True
+                                objeto.ambito[id]['datatype'] = temp.instruccion.datatype
+                                flag2 = False
+                            elif temp.declaraciones:
+                                temp = temp.declaraciones
+                            else:
+                                flag2 = False
+                        elif temp.declaraciones:
+                            temp = temp.declaraciones
+                    elif isinstance(temp, Nodo):
+                        if temp.etiqueta == 'str_return':
+                            encontrado = True
+                            objeto.ambito[id]['datatype'] = temp.datatype
+                            flag2 = False
+                        else:
+                            flag2 = False
+                    else:
+                        flag2 = False
+                if not encontrado:
+                    objeto.ambito[id]['datatype'] = 'void'
+                
                 print self.tabla.popAmbito()
         
         elif isinstance(objeto, NodoArguments):
@@ -103,8 +138,7 @@ class VisitanteTabla(Visitante):
             self.tabla.setAtributo(id, 'tipo', 'variable')
             self.tabla.setAtributo(id, 'datatype', tipo.tipo)
             if tipo.index:
-                #TODO: acciones para el index de un argumento
-                pass
+                self.tabla.setAtributo(id, 'size', tipo.index.index)
             objeto.identificador.ambito = self.tabla.getCurrent()
         elif isinstance(objeto, NodoLocals):
             if objeto.locals:
@@ -134,23 +168,34 @@ class VisitanteTabla(Visitante):
             else:
                 if objeto.index:
                     objeto.indice = objeto.index.index
-                objeto.datatype = ambito[objeto.identificador]['tipo']
+                if ambito[objeto.identificador]['tipo'] == 'variable':
+                    objeto.datatype = ambito[objeto.identificador]['datatype']
         elif isinstance(objeto, NodoExprList):
             if objeto.exprlist:
                 objeto.exprlist.accept(self)
             objeto.expression.accept(self)
         elif isinstance(objeto, NodoExpression):
+            objeto.term.accept(self)
             if objeto.expression:
                 objeto.expression.accept(self)
-            objeto.term.accept(self)
+                if hasattr(objeto.expression, 'datatype'):
+                    objeto.datatype = objeto.expression.datatype
+            else:
+                objeto.datatype = objeto.term.datatype
         elif isinstance(objeto, NodoTerm):
+            objeto.factor.accept(self)
             if objeto.term:
                 objeto.term.accept(self)
-            objeto.factor.accept(self)
+                if hasattr(objeto.term, 'datatype'):
+                    objeto.datatype = objeto.term.datatype
+            else:
+                objeto.datatype = objeto.factor.datatype
         elif isinstance(objeto, NodoFactor):
             objeto.expression.accept(self)
+            objeto.datatype = objeto.expression.datatype
         elif isinstance(objeto, NodoUnario):
             objeto.expression.accept(self)
+            objeto.datatype = objeto.expression.datatype
         elif isinstance(objeto, NodoExpr_Or):
             if objeto.expr_or:
                 objeto.expr_or.accept(self)
