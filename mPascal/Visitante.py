@@ -135,10 +135,12 @@ class VisitanteTabla(Visitante):
             tipo = objeto.tipo
             objeto.identificador.datatype = tipo.tipo
             self.tabla.agregar(id)
-            self.tabla.setAtributo(id, 'tipo', 'variable')
             self.tabla.setAtributo(id, 'datatype', tipo.tipo)
             if tipo.index:
-                self.tabla.setAtributo(id, 'size', tipo.index.index)
+                self.tabla.setAtributo(id, 'size', tipo.index.expression)
+                self.tabla.setAtributo(id, 'tipo', 'arreglo')
+            else:
+                self.tabla.setAtributo(id, 'tipo', 'variable')
             objeto.identificador.ambito = self.tabla.getCurrent()
         elif isinstance(objeto, NodoLocals):
             if objeto.locals:
@@ -167,8 +169,8 @@ class VisitanteTabla(Visitante):
                 print 'error semantico, identificador no declarado: %s' % objeto.identificador
             else:
                 if objeto.index:
-                    objeto.indice = objeto.index.index
-                if ambito[objeto.identificador]['tipo'] == 'variable':
+                    objeto.indice = objeto.index.expression
+                if ambito[objeto.identificador]['tipo'] == 'variable' or ambito[objeto.identificador]['tipo'] == 'arreglo':
                     objeto.datatype = ambito[objeto.identificador]['datatype']
         elif isinstance(objeto, NodoExprList):
             if objeto.exprlist:
