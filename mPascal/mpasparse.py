@@ -12,7 +12,7 @@ from Nodo import Nodo, NodoEstructuraFuncion, NodoIdentificador, NodoArguments,\
     NodoExpr_And, NodoComparacion, NodoRelation, NodoExprList,\
     NodoConversionTipo
 from pascallex import tokens
-from Visitante import VisitanteTabla
+from Visitante import VisitanteTabla, VisitanteTipo
 
 precedence = (
        ('left', '+', '-'),
@@ -391,6 +391,7 @@ def parse(data):
         root = yacc.parse(data)
         if root:
             root.accept(VisitanteTabla())
+            root.accept(VisitanteTipo())
             #root.imprimir(1)
             pass
     except Exception,e:
