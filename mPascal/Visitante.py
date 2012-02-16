@@ -218,7 +218,37 @@ class VisitanteTabla(Visitante):
 class VisitanteTipo(Visitante):
     def visiteme(self, objeto):
         listaReturn = []
-        if isinstance(objeto, NodoComparacion): # comprueba el tipo en una expresion
+        
+        if isinstance(objeto, Nodo):
+            if objeto.etiqueta == 'programa':
+                for hoja in objeto.hojas:
+                    hoja.accept(self)
+            elif objeto.etiqueta == 'declaraciones_funcion':
+                for hoja in objeto.hojas:
+                    hoja.accept(self)
+            elif objeto.etiqueta == 'str_return': # comprueba el caso del return
+                for hoja in objeto.hojas:
+                    hoja.accept(self) 
+                listaReturn.append(objeto.datatype)
+            
+        elif isinstance(objeto, NodoEstructuraFuncion):
+            objeto.declaraciones.accept(self)
+        elif isinstance(objeto, NodoDeclaraciones):
+            if objeto.declaraciones:
+                objeto.declaraciones.accept(self)
+            objeto.instruccion.accept(self)
+        
+        elif isinstance(objeto, NodoWhile):
+            objeto.relation.accept(self)
+            objeto.stmts.accept(self)
+        elif isinstance(objeto, NodoIf):
+            objeto.relation.accept(self)
+            objeto.stmts.accept(self)
+        elif isinstance(objeto, NodoIfElse):
+            objeto.relation.accept(self)
+            objeto.stmts1.accept(self)
+            objeto.stmts2.accept(self)
+        elif isinstance(objeto, NodoComparacion): # comprueba el tipo en una expresion
             objeto.expression1.accept(self)
             objeto.expression2.accept(self)
             
@@ -258,11 +288,7 @@ class VisitanteTipo(Visitante):
             if objeto.term.datatype != objeto.factor.accept(self):
                 print "los tipos de dato no son equivalentes"
                 return
-        elif isinstance(objeto, Nodo): # comprueba el caso del return
-            if objeto.etiqueta == 'str_return':
-                for hoja in objeto.hojas:
-                    hoja.accept(self) 
-                listaReturn.append(objeto.datatype)
+            
         elif isinstance(objeto, NodoAsign):#comprueba la asignacion
             if isinstance(objeto.location, NodoIdentificador):
                 if objeto.location.index != None: # comprueba cuando la asignacion es a un vector
