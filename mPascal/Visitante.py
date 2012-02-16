@@ -205,5 +205,6 @@ class VisitanteTipo(Visitante):
         if len(listaReturn) >= 2: # revisa la lista de returns para que sean del mismo tipo
             for elemento in listaReturn:
                 if elemento != listaReturn[0]:
+                    
                     print "los tiposde dato que se retornan son diferentes"
                     return
