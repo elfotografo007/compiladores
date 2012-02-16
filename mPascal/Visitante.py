@@ -199,14 +199,17 @@ class VisitanteTabla(Visitante):
             objeto.expression.accept(self)
             objeto.datatype = objeto.expression.datatype
         elif isinstance(objeto, NodoExpr_Or):
+            objeto.datatype = 'bool'
             if objeto.expr_or:
                 objeto.expr_or.accept(self)
             objeto.expr_and.accept(self)
         elif isinstance(objeto, NodoExpr_And):
+            objeto.datatype = 'bool'
             if objeto.expr_and:
                 objeto.expr_and.accept(self)
             objeto.expr_not.accept(self)
         elif isinstance(objeto, NodoComparacion):
+            objeto.datatype = 'bool'
             objeto.expression1.accept(self)
             if objeto.expression2:
                 objeto.expression2.accept(self)
