@@ -125,7 +125,7 @@ class VisitanteTabla(Visitante):
                 if not encontrado:
                     objeto.ambito[id]['datatype'] = 'void'
                 
-                print self.tabla.popAmbito()
+                #print self.tabla.popAmbito()
         
         elif isinstance(objeto, NodoArguments):
             if objeto.arguments:
@@ -170,7 +170,8 @@ class VisitanteTabla(Visitante):
                 print 'error semantico, identificador no declarado: %s' % objeto.identificador
             else:
                 if objeto.index:
-                    objeto.indice = objeto.index.expression
+                    if isinstance(objeto.index, NodoExpression):
+                        objeto.indice = objeto.index.expression
                 if ambito[objeto.identificador]['tipo'] == 'variable' or ambito[objeto.identificador]['tipo'] == 'arreglo':
                     objeto.datatype = ambito[objeto.identificador]['datatype']
                 objeto.ambito = ambito
