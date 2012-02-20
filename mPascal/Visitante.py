@@ -220,21 +220,20 @@ class VisitanteTipo(Visitante):
         listaReturn = []
         
         if isinstance(objeto, Nodo):
-            #if objeto.etiqueta == 'programa':
-            #    for hoja in objeto.hojas:
-            #        hoja.accept(self)
-            #elif objeto.etiqueta == 'declaraciones_funcion':
-            #    for hoja in objeto.hojas:
-            #        hoja.accept(self)
+            if objeto.etiqueta == 'programa':
+                for hoja in objeto.hojas:
+                    hoja.accept(self)
+            elif objeto.etiqueta == 'declaraciones_funcion':
+                for hoja in objeto.hojas:
+                    hoja.accept(self)
             if objeto.etiqueta == 'str_return': 
                 for hoja in objeto.hojas:
                     hoja.accept(self) 
                 listaReturn.append(objeto.datatype)
-            #elif objeto.etiqueta == 'expr_not':
-            #        for hoja in objeto.hojas:
-            #            hoja.accept(self) 
-            for hoja in objeto.hojas:
-                hoja.accept(self) 
+            elif objeto.etiqueta == 'expr_not':
+                for hoja in objeto.hojas:
+                        hoja.accept(self) 
+            
             
         elif isinstance(objeto, NodoEstructuraFuncion):
             objeto.declaraciones.accept(self)
