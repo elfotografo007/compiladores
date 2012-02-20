@@ -148,11 +148,11 @@ def p_instruccion9(p):
 
 def p_instruccion10(p):
     "instruccion : SKIP"
-    p[0] = p[1]
+    p[0] = Nodo('skip', [p[1]])
 
 def p_instruccion11(p):
     "instruccion : BREAK"
-    p[0] = p[1]
+    p[0] = Nodo('break',[p[1]])
     
 def p_instruccion12(p):
     'instruccion : BEGIN declaraciones END'

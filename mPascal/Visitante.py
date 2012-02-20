@@ -147,7 +147,7 @@ class VisitanteTabla(Visitante):
             if objeto.locals:
                 objeto.locals.accept(self)
             objeto.arg.accept(self)
-        elif isinstance(objeto, NodoDeclaraciones):
+        elif isinstance(objeto, NodoDeclaraciones) or isinstance(objeto, NodoStmts):
             if objeto.declaraciones:
                 objeto.declaraciones.accept(self)
             objeto.instruccion.accept(self)
@@ -173,6 +173,7 @@ class VisitanteTabla(Visitante):
                     objeto.indice = objeto.index.expression
                 if ambito[objeto.identificador]['tipo'] == 'variable' or ambito[objeto.identificador]['tipo'] == 'arreglo':
                     objeto.datatype = ambito[objeto.identificador]['datatype']
+                objeto.ambito = ambito
         elif isinstance(objeto, NodoExprList):
             if objeto.exprlist:
                 objeto.exprlist.accept(self)
