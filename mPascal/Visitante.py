@@ -59,6 +59,7 @@ class VisitanteTabla(Visitante):
                         print 'error semantico. La funcion {0} espera {1} parametros y se le pasaron {2}'.format(id, len(ambito[id]['arguments']), count)
                 if ambito[id].has_key('datatype'):
                     objeto.datatype = ambito[id]['datatype']
+                objeto.ambito = ambito
                 
             if objeto.etiqueta == 'str_return':
                 for hoja in objeto.hojas:
@@ -233,12 +234,12 @@ class VisitanteTipo(Visitante):
             elif objeto.etiqueta == 'expr_not':
                 for hoja in objeto.hojas:
                         hoja.accept(self) 
+            elif objeto.etiqueta == 'llamada':
+                objeto.datatype = objeto.ambito[objeto.hojas[0].identificador]['datatype']
             
             
         elif isinstance(objeto, NodoEstructuraFuncion):
             objeto.declaraciones.accept(self)
-            objeto.arguments.accept(self)
-            objeto.locals.accept(self)
             
         elif isinstance(objeto, NodoDeclaraciones):
             if objeto.declaraciones:
@@ -269,7 +270,7 @@ class VisitanteTipo(Visitante):
             objeto.expression2.accept(self)
             
             if objeto.expression1.datatype != objeto.expression2.datatype:
-                print "los tipod de dato no son equivalentes en la comparacion"
+                print "los tipos de dato no son equivalentes en la comparacion"
                 return
         elif isinstance(objeto, NodoExpr_Or): 
             objeto.expr_or.accept(self) 
@@ -293,11 +294,11 @@ class VisitanteTipo(Visitante):
             objeto.term.accept(self)
             objeto.factor.accept(self)
             if objeto.term.datatype != objeto.factor.datatype:
-                print "los tipos de dato en la expresion matematica de multiplicacion o divicion no son equivalentes"
+                print "los tipos de dato en la expresion matematica de multiplicacion o division no son equivalentes" 
                 return
         elif isinstance(objeto, NodoIndex):
             if objeto.datatype != 'int':
-                print "los tipos de dato en la expresion matematica de multiplicacion o divicion no son equivalentes"
+                print "los tipos de dato en la expresion matematica de multiplicacion o division no son equivalentes"
                 return
             
         elif isinstance(objeto, NodoAsign):

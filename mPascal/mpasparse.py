@@ -29,6 +29,7 @@ def p_programa(p):
     'programa : declaraciones_funcion'
     p[0] = Nodo('programa', [p[1]])
 
+
 def p_declaraciones_funcion1(p):
     'declaraciones_funcion : declaraciones_funcion estructura_funcion'
     p[0] = Nodo('declaraciones_funcion', [p[1], p[2]])
@@ -272,6 +273,7 @@ def p_expression1(p):
 def p_expression2(p):
     'expression : term'    
     p[0] = p[1]
+
 
 def p_opsuma1(p):
     "opsuma : '+'"
