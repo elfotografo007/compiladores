@@ -79,20 +79,20 @@ class VisitanteTabla(Visitante):
                 self.tabla.agregar(id)
                 self.tabla.setAtributo(id, 'tipo', 'funcion')
                 self.tabla.pushAmbito()
-                argsList = []
+                argsList = {}
                 if objeto.arguments:
                     objeto.arguments.accept(self)
                     temp = objeto.arguments
                     flag2 = True
                     while flag2:
                         if isinstance(temp, NodoArguments):
-                            argsList.append({temp.arg.identificador.identificador : temp.arg.identificador.datatype})
+                            argsList[temp.arg.identificador.identificador] = temp.arg.identificador.datatype
                             if temp.arguments:
                                 temp = temp.arguments
                             else:
                                 flag2 = False
                         else:
-                            argsList.append({temp.identificador.identificador : temp.identificador.datatype})
+                            argsList[temp.identificador.identificador] = temp.identificador.datatype
                             flag2 = False
                 objeto.ambito[id]['arguments'] = argsList 
                 self.tabla.getCurrent()['return'] = []
