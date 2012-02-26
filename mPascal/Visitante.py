@@ -252,11 +252,11 @@ class VisitanteTipo(Visitante):
             
         elif isinstance(objeto, NodoComparacion): 
             objeto.expression1.accept(self)
-            objeto.expression2.accept(self)
-            
-            if objeto.expression1.datatype != objeto.expression2.datatype:
-                print "los tipos de dato no son equivalentes en la comparacion"
-                return
+            if objeto.expression2:
+                objeto.expression2.accept(self)
+                if objeto.expression1.datatype != objeto.expression2.datatype:
+                    print "los tipos de dato no son equivalentes en la comparacion"
+                    return
         elif isinstance(objeto, NodoExpr_Or): 
             objeto.expr_or.accept(self) 
             objeto.expr_and.accept(self)
