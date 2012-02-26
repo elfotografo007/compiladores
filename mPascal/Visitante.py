@@ -66,6 +66,7 @@ class VisitanteTabla(Visitante):
                     hoja.accept(self)
                     if hasattr(hoja, 'datatype'):
                         objeto.datatype = hoja.datatype
+                    self.tabla.getCurrent()['return'].append(objeto)
         
         elif isinstance(objeto, NodoEstructuraFuncion):
             id = objeto.identificador.identificador
@@ -93,39 +94,21 @@ class VisitanteTabla(Visitante):
                         else:
                             argsList.append({temp.identificador.identificador : temp.identificador.datatype})
                             flag2 = False
-                objeto.ambito[id]['arguments'] = argsList    
+                objeto.ambito[id]['arguments'] = argsList 
+                self.tabla.getCurrent()['return'] = []
                 if objeto.locals:
                     objeto.locals.accept(self)
                 objeto.declaraciones.accept(self)
-                flag2 = True
                 encontrado = False
-                temp = objeto.declaraciones
-                while flag2:
-                    if isinstance(temp, NodoDeclaraciones):
-                        if isinstance(temp.instruccion, Nodo):
-                            if temp.instruccion.etiqueta == 'str_return':
-                                encontrado = True
-                                objeto.ambito[id]['datatype'] = temp.instruccion.datatype
-                                flag2 = False
-                            elif temp.declaraciones:
-                                temp = temp.declaraciones
-                            else:
-                                flag2 = False
-                        elif temp.declaraciones:
-                            temp = temp.declaraciones
-                    elif isinstance(temp, Nodo):
-                        if temp.etiqueta == 'str_return':
-                            encontrado = True
-                            objeto.ambito[id]['datatype'] = temp.datatype
-                            flag2 = False
-                        else:
-                            flag2 = False
-                    else:
-                        flag2 = False
+                for i in self.tabla.getCurrent()['return']:
+                    if hasattr(i, 'datatype'):
+                        objeto.ambito[id]['datatype'] = i.datatype
+                        encontrado = True
+                        break
                 if not encontrado:
                     objeto.ambito[id]['datatype'] = 'void'
                 
-                #print self.tabla.popAmbito()
+                print self.tabla.popAmbito()
         
         elif isinstance(objeto, NodoArguments):
             if objeto.arguments:
