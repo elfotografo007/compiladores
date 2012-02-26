@@ -215,6 +215,9 @@ class VisitanteTipo(Visitante):
             if objeto.etiqueta == 'str_return': 
                 for hoja in objeto.hojas:
                     hoja.accept(self) 
+                    if not hasattr(objeto, 'datatype'):
+                        if hasattr(hoja, 'datatype'):
+                            objeto.datatype = hoja.datatype
                 listaReturn.append(objeto.datatype)
             elif objeto.etiqueta == 'expr_not':
                 for hoja in objeto.hojas:
@@ -243,6 +246,9 @@ class VisitanteTipo(Visitante):
             objeto.stmts2.accept(self)
         elif isinstance(objeto, NodoFactor):
             objeto.expression.accept(self)
+            if not hasattr(objeto, 'datatype'):
+                if hasattr(objeto.expression, 'datatype'):
+                    objeto.datatype = objeto.expression.datatype
         elif isinstance(objeto, NodoStmts):
             if objeto.declaraciones:
                 objeto.declaraciones.accept(self)
@@ -272,12 +278,24 @@ class VisitanteTipo(Visitante):
         elif isinstance(objeto, NodoExpression): 
             objeto.expression.accept(self)
             objeto.term.accept(self)
+            if not hasattr(objeto, 'datatype'):
+                if hasattr(objeto.expression, 'datatype'):
+                    objeto.datatype = objeto.expression.datatype
+                elif hasattr(objeto.term, 'datatype'):
+                    objeto.datatype = objeto.term.datatype
+                    
             if objeto.expression.datatype != objeto.term.datatype:
                 print "los tipos de dato en la expresion matematica de suma o resta no son equivalentes"
                 return
         elif isinstance(objeto, NodoTerm):
             objeto.term.accept(self)
             objeto.factor.accept(self)
+            if not hasattr(objeto, 'datatype'):
+                if hasattr(objeto.term, 'datatype'):
+                    objeto.datatype = objeto.term.datatype
+                elif hasattr(objeto.factor, 'datatype'):
+                    objeto.datatype = objeto.factor.datatype
+                    
             if objeto.term.datatype != objeto.factor.datatype:
                 print "los tipos de dato en la expresion matematica de multiplicacion o division no son equivalentes" 
                 return
