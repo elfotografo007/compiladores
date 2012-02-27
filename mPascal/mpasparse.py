@@ -388,17 +388,25 @@ yacc.yacc()
 #Aumentar el limite de recursion para entradas muy grandes
 sys.setrecursionlimit(5000)
 
+#def parse(data):
+#    try:
+#        root = yacc.parse(data)
+#        if root:
+#            root.accept(VisitanteTabla())
+#            root.accept(VisitanteTipo())
+#            #root.imprimir(1)
+#            pass
+#    except Exception,e:
+#        print e
+#        sys.exit()
+
 def parse(data):
-    try:
-        root = yacc.parse(data)
-        if root:
-            root.accept(VisitanteTabla())
-            root.accept(VisitanteTipo())
-            #root.imprimir(1)
-            pass
-    except Exception,e:
-        print e
-        sys.exit()
+    root = yacc.parse(data)
+    if root:
+        root.accept(VisitanteTabla())
+        root.accept(VisitanteTipo())
+    sys.exit()
+
 try:
     filename = sys.argv[1]
     f = open(filename)
