@@ -9,7 +9,6 @@ from Nodo import Nodo, NodoEstructuraFuncion, NodoArguments, NodoArg, NodoLocals
     NodoIdentificador, NodoExprList, NodoExpression, NodoTerm, NodoFactor,\
     NodoUnario, NodoExpr_And, NodoExpr_Or, NodoComparacion,NodoStmts,NodoIndex,NodoRelation,\
     NodoNumero
-from symbol import arglist
 
 class Visitante(object):
     '''
@@ -25,7 +24,7 @@ class VisitanteTabla(Visitante):
                 self.tabla = symtab()
                 for hoja in objeto.hojas:
                     hoja.accept(self)
-                print self.tabla.getCurrent()
+                #print self.tabla.getCurrent()
             if objeto.etiqueta in ['str_write', 'declaraciones_funcion']:
                 for hoja in objeto.hojas:
                     hoja.accept(self)
@@ -127,7 +126,7 @@ class VisitanteTabla(Visitante):
                 if not encontrado:
                     objeto.ambito[id]['datatype'] = 'void'
                 
-                print self.tabla.popAmbito()
+                #print self.tabla.popAmbito()
         
         elif isinstance(objeto, NodoArguments):
             if objeto.arguments:
