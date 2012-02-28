@@ -35,6 +35,8 @@ class VisitanteGenerar(Visitante):
                 print >>self.file, "\n! write (start)"
                 for hoja in objeto.hojas:
                     hoja.accept(self)
+                print >>self.file, "!  expr := pop"
+                print >>self.file, "!  write(expr)"
                 print >>self.file, "! write (end)"
                 
             if objeto.etiqueta == 'declaraciones_funcion':
@@ -60,10 +62,11 @@ class VisitanteGenerar(Visitante):
             if objeto.etiqueta == 'llamada':
                 for hoja in objeto.hojas:
                     if isinstance(hoja, NodoIdentificador):
-                        pass
+                        print >>self.file, "! push %s()" % hoja.identificador 
                     elif isinstance(hoja, NodoExprList):
                         pass
                     hoja.accept(self)
+                    
 
             if objeto.etiqueta == 'str_return':
                 print >>self.file, "\n! return (start)"
@@ -119,10 +122,17 @@ class VisitanteGenerar(Visitante):
             print >>self.file, "\n! assign (start)"
             objeto.location.accept(self)
             objeto.expression.accept(self)
+            if isinstance(objeto.expression, NodoIdentificador):
+                if not objeto.expression.index:
+                    print >>self.file, "!  push", objeto.expression.identificador
+            print >>self.file, "!  %s := pop" % objeto.location.identificador
             print >>self.file, "! assign (end)"
             
         elif isinstance(objeto, NodoIdentificador):
-            pass
+            if objeto.index:
+                objeto.index.accept(self)
+                print >>self.file, "!  index := pop"
+                print >>self.file, "!  push %s[index]" % objeto.identificador
         
         elif isinstance(objeto, NodoExprList):
             if objeto.exprlist:
@@ -130,15 +140,35 @@ class VisitanteGenerar(Visitante):
             objeto.expression.accept(self)
             
         elif isinstance(objeto, NodoExpression):
-            objeto.term.accept(self)
             if objeto.expression:
                 objeto.expression.accept(self)
-                
+                if isinstance(objeto.expression, NodoIdentificador):
+                    if not objeto.expression.index:
+                        print >>self.file, "!  push", objeto.expression.identificador
+            objeto.term.accept(self)
+            if isinstance(objeto.term, NodoIdentificador):
+                if not objeto.term.index:
+                    print >>self.file, "!  push", objeto.term.identificador
+            if objeto.op.op == '+':
+                print >>self.file, "!  add"
+            else:
+                print >>self.file, "!  sub"
+            
         elif isinstance(objeto, NodoTerm):
-            objeto.factor.accept(self)
             if objeto.term:
                 objeto.term.accept(self)
-                
+                if isinstance(objeto.term, NodoIdentificador):
+                    if not objeto.term.index:
+                        print >>self.file, "!  push", objeto.term.identificador
+            objeto.factor.accept(self)
+            if isinstance(objeto.factor, NodoIdentificador):
+                print >>self.file, "!  push", objeto.factor.identificador
+            
+            if objeto.op.op == '*':
+                print >>self.file, "!  mul"
+            else:
+                print >>self.file, "!  div"
+            
         elif isinstance(objeto, NodoFactor):
             objeto.expression.accept(self)
             
@@ -157,5 +187,25 @@ class VisitanteGenerar(Visitante):
             
         elif isinstance(objeto, NodoComparacion):
             objeto.expression1.accept(self)
+            if isinstance(objeto.expression1, NodoIdentificador):
+                    print >>self.file, "!  push", objeto.expression1.identificador
             if objeto.expression2:
                 objeto.expression2.accept(self)
+                if isinstance(objeto.expression2, NodoIdentificador):
+                    print >>self.file, "!  push", objeto.expression2.identificador
+                if objeto.op.op == '<':
+                    print >>self.file, "!  lt"
+                elif objeto.op.op == '>':
+                    print >>self.file, "!  gt"
+                elif objeto.op.op == '<=':
+                    print >>self.file, "!  lte"
+                elif objeto.op.op == '>=':
+                    print >>self.file, "!  gte"
+                elif objeto.op.op == '==':
+                    print >>self.file, "!  eq"
+                elif objeto.op.op == '!=':
+                    print >>self.file, "!  ne"
+                print >>self.file, "!  relop := pop"
+                
+        elif isinstance(objeto, NodoNumero):
+            print >>self.file, "!  push", objeto.expression
