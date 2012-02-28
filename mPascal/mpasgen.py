@@ -5,6 +5,7 @@ Created on 27/02/2012
 '''
 #mpasgen.py
 
+from StringIO import StringIO
 from Visitante import Visitante
 from Nodo import Nodo, NodoEstructuraFuncion, NodoArguments, NodoArg, NodoLocals,\
     NodoDeclaraciones, NodoWhile, NodoIf, NodoIfElse, NodoAsign,\
@@ -19,11 +20,20 @@ class VisitanteGenerar(Visitante):
     def __init__(self, file):
         self.file = file
         self.argCount = 1
+        self.data = StringIO()
+        self.labelCount = 0
+    
+    def new_label(self):
+        self.labelCount += 1
+        return ".L%d" % self.labelCount
     
     def generate(self, top):
         print >>self.file, "!Creado por mpascal.py"
         print >>self.file, "! Esteban Santa y Andres Torres, IS744 (2012-1)"
+        print >>self.file, '    .section ".text"'
+        print >>self.data, '    .section ".data"'
         self.visiteme(top)
+        print >>self.file, self.data.getvalue()
         
     def visiteme(self, objeto):
         if isinstance(objeto, Nodo):
@@ -52,8 +62,13 @@ class VisitanteGenerar(Visitante):
             
             if objeto.etiqueta == 'str_print':
                 print >>self.file, "\n! print (start)"
-#                for hoja in objeto.hojas:
-#                    hoja.accept(self)
+                label = self.new_label()
+                hoja = objeto.hojas[0]
+                if isinstance(hoja, NodoNumero):
+                    print >>self.data, '{0}:  .asciiz "{1}"'.format(label, hoja.expression)
+                #TODO: Acciones para el la instruccion print con un identificador
+                else:
+                    print >>self.data, '{0}:  .asciiz "{1}"'.format(label, hoja)
                 print >>self.file, "! print (end)"
             
             if objeto.etiqueta == 'expr_not':
@@ -80,11 +95,14 @@ class VisitanteGenerar(Visitante):
                 print >>self.file, "! return (end)"
         
         elif isinstance(objeto, NodoEstructuraFuncion):
-                print >>self.file, "\n! funcion %s (start)" % objeto.identificador.identificador
+                id = objeto.identificador.identificador
+                print >>self.file, "\n! funcion %s (start)" % id
+                print >>self.file, "    .global ", id
+                print >>self.file, "%s:" % id
                 if objeto.locals:
                     objeto.locals.accept(self)
                 objeto.declaraciones.accept(self)
-                print >>self.file, "! funcion %s (end)" % objeto.identificador.identificador
+                print >>self.file, "! funcion %s (end)" % id
         
         elif isinstance(objeto, NodoArguments):
             if objeto.arguments:
@@ -106,35 +124,45 @@ class VisitanteGenerar(Visitante):
             
         elif isinstance(objeto, NodoWhile):
             print >>self.file, "\n! while (start)"
-            print >>self.file, "! test:"  #TODO: cambiar etiquetas de loops
+            loop_label = self.new_label()
+            end_loop_label = self.new_label()
+            print >>self.file, "%s:"  % loop_label
             objeto.relation.accept(self)
             print >>self.file, "!  relop := pop"
-            print >>self.file, "!  if not relop: goto done" #TODO: cambiar etiqueta done de loop
+            print >>self.file, "!  if not relop: goto ", end_loop_label
             objeto.stmts.accept(self)
-            print >>self.file, "! goto test" #TODO: cambiar etiqueta goto test de loop
-            print >>self.file, "! done:"   #TODO: etiqueta done de loop
+            print >>self.file, "! goto ", loop_label
+            print >>self.file, "%s:" % end_loop_label
             print >>self.file, "! while (end)"
+            del loop_label
+            del end_loop_label
             
         elif isinstance(objeto, NodoIf):
             print >>self.file, "\n! if (start)"
             objeto.relation.accept(self)
+            end_if_label = self.new_label()
             print >>self.file, "!  relop := pop"
-            print >>self.file, "!  if not relop: goto end_if"
+            print >>self.file, "!  if not relop: goto ", end_if_label
             objeto.stmts.accept(self)
-            print >>self.file, "!  end_if:"
+            print >>self.file, "%s:" % end_if_label
             print >>self.file, "! if (end)"
+            del end_if_label
             
         elif isinstance(objeto, NodoIfElse):
             print >>self.file, "\n! if (start)"
+            end_if_label = self.new_label()
+            else_label = self.new_label()
             objeto.relation.accept(self)
             print >>self.file, "!  relop := pop"
-            print >>self.file, "!  if not relop: goto else"
+            print >>self.file, "!  if not relop: goto ", else_label
             objeto.stmts1.accept(self)
-            print >>self.file, "!  goto end_if"
-            print >>self.file, "!  else:"
+            print >>self.file, "!  goto ", end_if_label
+            print >>self.file, "%s:" % else_label
             objeto.stmts2.accept(self)
-            print >>self.file, "!  end_if:"
+            print >>self.file, "%s:" % end_if_label
             print >>self.file, "! if (end)"
+            del end_if_label
+            del else_label
             
         elif isinstance(objeto, NodoAsign):
             print >>self.file, "\n! assign (start)"
