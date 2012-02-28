@@ -7,7 +7,8 @@ from symtab import symtab
 from Nodo import Nodo, NodoEstructuraFuncion, NodoArguments, NodoArg, NodoLocals,\
     NodoDeclaraciones, NodoWhile, NodoIf, NodoIfElse, NodoAsign,\
     NodoIdentificador, NodoExprList, NodoExpression, NodoTerm, NodoFactor,\
-    NodoUnario, NodoExpr_And, NodoExpr_Or, NodoComparacion,NodoStmts,NodoIndex,NodoRelation
+    NodoUnario, NodoExpr_And, NodoExpr_Or, NodoComparacion,NodoStmts,NodoIndex,NodoRelation,\
+    NodoNumero
 from symbol import arglist
 
 class Visitante(object):
@@ -79,20 +80,38 @@ class VisitanteTabla(Visitante):
                 self.tabla.agregar(id)
                 self.tabla.setAtributo(id, 'tipo', 'funcion')
                 self.tabla.pushAmbito()
-                argsList = {}
+                argsList = []
                 if objeto.arguments:
                     objeto.arguments.accept(self)
                     temp = objeto.arguments
                     flag2 = True
                     while flag2:
                         if isinstance(temp, NodoArguments):
-                            argsList[temp.arg.identificador.identificador] = temp.arg.identificador.datatype
+                            atributosArg = {}
+                            atributosArg['id'] = temp.arg.identificador.identificador
+                            atributosArg['datatype']=temp.arg.identificador.datatype
+                            if temp.arg.tipo.index:
+                                atributosArg['tipo']= 'arreglo'
+                                if isinstance(temp.arg.tipo.index, NodoNumero):
+                                    atributosArg['size'] = temp.arg.tipo.index.expression
+                            else:
+                                atributosArg['tipo']= 'variable'
+                            argsList.append(atributosArg)
                             if temp.arguments:
                                 temp = temp.arguments
                             else:
                                 flag2 = False
                         else:
-                            argsList[temp.identificador.identificador] = temp.identificador.datatype
+                            atributosArg = {}
+                            atributosArg['id'] = temp.identificador.identificador
+                            atributosArg['datatype']= temp.identificador.datatype
+                            if temp.tipo.index:
+                                atributosArg['tipo']= 'arreglo'
+                                if isinstance(temp.tipo.index, NodoNumero):
+                                    atributosArg['size'] = temp.tipo.index.expression
+                            else:
+                                atributosArg['tipo']= 'variable'
+                            argsList.append(atributosArg)
                             flag2 = False
                 objeto.ambito[id]['arguments'] = argsList 
                 self.tabla.getCurrent()['return'] = []
@@ -209,7 +228,7 @@ class VisitanteTipo(Visitante):
             if objeto.etiqueta == 'programa':
                 for hoja in objeto.hojas:
                     hoja.accept(self)
-            elif objeto.etiqueta == 'declaraciones_funcion':
+            elif objeto.etiqueta in ['declaraciones_funcion', 'str_write']:
                 for hoja in objeto.hojas:
                     hoja.accept(self)
             if objeto.etiqueta == 'str_return': 
@@ -223,12 +242,55 @@ class VisitanteTipo(Visitante):
                 for hoja in objeto.hojas:
                         hoja.accept(self) 
             elif objeto.etiqueta == 'llamada':
-                objeto.datatype = objeto.ambito[objeto.hojas[0].identificador]['datatype']
-            
+                id = objeto.hojas[0].identificador
+                objeto.datatype = objeto.ambito[id]['datatype']
+                argList = objeto.ambito[id]['arguments']
+                
+                for hoja in objeto.hojas:
+                    contador= 0
+                    if isinstance(hoja, NodoExprList):
+                        temp = hoja
+                        flag2 = True
+                        while flag2:
+                            if isinstance(temp.expression, NodoExpression) or isinstance(temp.expression, NodoTerm) or isinstance(temp.expression, NodoFactor) or isinstance(temp.expression, NodoNumero):
+                                if argList[contador]['datatype'] != temp.expression.datatype:
+                                    print 'Error, se esta pasando un tipo de dato equivocado en el argumento de la funcion %s' % id
+                                
+                            elif isinstance(temp.expression, NodoIdentificador):
+                                if argList[contador]['datatype'] != temp.expression.datatype:
+                                    print 'Error, se esta pasando un tipo de dato equivocado en el argumento de la funcion %s' % id
+                                ambitoId = temp.expression.ambito
+                                if ambitoId[temp.expression.identificador]['tipo'] == argList[contador]['tipo']:
+                                    if ambitoId[temp.expression.identificador]['tipo'] == 'arreglo':
+                                        if ambitoId[temp.expression.identificador]['size'] != argList[contador]['size']:
+                                            print 'Error, se esta enviando un vector de dimension {0}, y la funcion {1} espera uno de dimension {2}'.format(str(ambitoId[temp.expression.identificador]['size']), id, str(argList[contador]['size']))
+                                else:
+                                    print 'Error, Se esta enviando un {0}, y la funcion {1} espera {2}'.format(str(ambitoId[temp.expression.identificador]['tipo']), id, str(argList[contador]['tipo']))
+                            if temp.exprlist:
+                                contador+=1
+                                temp = temp.exprlist
+                            else:
+                                flag2 = False
+                                
+                                    
             
         elif isinstance(objeto, NodoEstructuraFuncion):
             objeto.declaraciones.accept(self)
+            if objeto.arguments:
+                objeto.arguments.accept(self)
+                
+        elif isinstance(objeto, NodoArguments):
+            objeto.arg.accept(self)
+            objeto.arguments.accept(self)
+        
+        elif isinstance(objeto, NodoArg):
+            objeto.tipo.accept(self)      
+            if objeto.tipo.index:
+                if objeto.tipo.index.datatype != 'int':
+                    print 'Error, se esta declarando un argumento que tiene un arreglo cuyo indice no es entero'
+                
             
+                    
         elif isinstance(objeto, NodoDeclaraciones):
             if objeto.declaraciones:
                 objeto.declaraciones.accept(self)
