@@ -125,8 +125,9 @@ class VisitanteTabla(Visitante):
                         break
                 if not encontrado:
                     objeto.ambito[id]['datatype'] = 'void'
+                del self.tabla.getCurrent()['return']
                 
-                #print self.tabla.popAmbito()
+                objeto.locales = self.tabla.popAmbito()
         
         elif isinstance(objeto, NodoArguments):
             if objeto.arguments:
