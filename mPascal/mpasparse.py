@@ -349,14 +349,6 @@ def p_index1(p):
     'index : expression'
     p[0] = p[1]   
     
-def p_literal1(p):
-    'literal : IDENTIFICADOR'
-    p[0] = p[1]
-
-def p_literal2(p):
-    'literal : numero'
-    p[0] = p[1]      
-
 def p_literal3(p):
     'literal : CADENA'
     p[0] = p[1] 
