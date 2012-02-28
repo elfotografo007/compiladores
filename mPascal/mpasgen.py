@@ -18,6 +18,7 @@ class VisitanteGenerar(Visitante):
     
     def __init__(self, file):
         self.file = file
+        self.argCount = 1
     
     def generate(self, top):
         print >>self.file, "!Creado por mpascal.py"
@@ -60,13 +61,17 @@ class VisitanteGenerar(Visitante):
                     hoja.accept(self)
                     
             if objeto.etiqueta == 'llamada':
-                for hoja in objeto.hojas:
-                    if isinstance(hoja, NodoIdentificador):
-                        print >>self.file, "! push %s()" % hoja.identificador 
-                    elif isinstance(hoja, NodoExprList):
-                        pass
-                    hoja.accept(self)
-                    
+                if len(objeto.hojas) > 1:
+                    self.argCount = 1
+                    objeto.hojas[1].accept(self)
+                    if not isinstance(objeto.hojas[1], NodoExprList):
+                        print >>self.file, "arg1 := pop"
+                    args = ''
+                    for i in range(1,self.argCount):
+                        args += 'arg%d,' % i
+                    print >>self.file, "!  push {0}({1})".format(objeto.hojas[0].identificador, args.rstrip(','))
+                else:
+                    print >>self.file, "! push %s()" % objeto.hojas[0].identificador
 
             if objeto.etiqueta == 'str_return':
                 print >>self.file, "\n! return (start)"
@@ -101,21 +106,34 @@ class VisitanteGenerar(Visitante):
             
         elif isinstance(objeto, NodoWhile):
             print >>self.file, "\n! while (start)"
+            print >>self.file, "! test:"  #TODO: cambiar etiquetas de loops
             objeto.relation.accept(self)
+            print >>self.file, "!  relop := pop"
+            print >>self.file, "!  if not relop: goto done" #TODO: cambiar etiqueta done de loop
             objeto.stmts.accept(self)
+            print >>self.file, "! goto test" #TODO: cambiar etiqueta goto test de loop
+            print >>self.file, "! done:"   #TODO: etiqueta done de loop
             print >>self.file, "! while (end)"
             
         elif isinstance(objeto, NodoIf):
             print >>self.file, "\n! if (start)"
             objeto.relation.accept(self)
+            print >>self.file, "!  relop := pop"
+            print >>self.file, "!  if not relop: goto end_if"
             objeto.stmts.accept(self)
+            print >>self.file, "!  end_if:"
             print >>self.file, "! if (end)"
             
         elif isinstance(objeto, NodoIfElse):
             print >>self.file, "\n! if (start)"
             objeto.relation.accept(self)
+            print >>self.file, "!  relop := pop"
+            print >>self.file, "!  if not relop: goto else"
             objeto.stmts1.accept(self)
+            print >>self.file, "!  goto end_if"
+            print >>self.file, "!  else:"
             objeto.stmts2.accept(self)
+            print >>self.file, "!  end_if:"
             print >>self.file, "! if (end)"
             
         elif isinstance(objeto, NodoAsign):
@@ -136,6 +154,8 @@ class VisitanteGenerar(Visitante):
             if objeto.exprlist:
                 objeto.exprlist.accept(self)
             objeto.expression.accept(self)
+            print >>self.file, "!  arg%d := pop" % self.argCount
+            self.argCount += 1
             
         elif isinstance(objeto, NodoExpression):
             if objeto.expression:
@@ -165,11 +185,13 @@ class VisitanteGenerar(Visitante):
             if objeto.expr_or:
                 objeto.expr_or.accept(self)
             objeto.expr_and.accept(self)
+            print >> self.file, "!  or"
             
         elif isinstance(objeto, NodoExpr_And):
             if objeto.expr_and:
                 objeto.expr_and.accept(self)
             objeto.expr_not.accept(self)
+            print >> self.file, "!  and"
             
         elif isinstance(objeto, NodoComparacion):
             objeto.expression1.accept(self)
@@ -187,7 +209,6 @@ class VisitanteGenerar(Visitante):
                     print >>self.file, "!  eq"
                 elif objeto.op.op == '!=':
                     print >>self.file, "!  ne"
-                print >>self.file, "!  relop := pop"
                 
         elif isinstance(objeto, NodoNumero):
             print >>self.file, "!  push", objeto.expression
