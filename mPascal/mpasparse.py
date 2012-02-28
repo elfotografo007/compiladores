@@ -12,6 +12,7 @@ from Nodo import Nodo, NodoEstructuraFuncion, NodoIdentificador, NodoArguments,\
     NodoExpr_And, NodoComparacion, NodoRelation, NodoExprList,\
     NodoConversionTipo
 from pascallex import tokens
+from Visitante import VisitanteTabla, VisitanteTipo
 
 precedence = (
        ('left', '+', '-'),
@@ -27,6 +28,7 @@ precedence = (
 def p_programa(p):
     'programa : declaraciones_funcion'
     p[0] = Nodo('programa', [p[1]])
+
 
 def p_declaraciones_funcion1(p):
     'declaraciones_funcion : declaraciones_funcion estructura_funcion'
@@ -70,11 +72,11 @@ def p_locals3(p):
 
 def p_locals4(p):
     "locals : arg ';'"
-    p[0] = p[1]
+    p[0] = NodoLocals(p[1])
 
 def p_locals5(p):
     "locals : declaraciones_funcion ';'"
-    p[0] = p[1]
+    p[0] = NodoLocals(p[1])
 
 def p_tipo1(p):
     'tipo : INT'
@@ -146,11 +148,11 @@ def p_instruccion9(p):
 
 def p_instruccion10(p):
     "instruccion : SKIP"
-    p[0] = p[1]
+    p[0] = Nodo('skip', [p[1]])
 
 def p_instruccion11(p):
     "instruccion : BREAK"
-    p[0] = p[1]
+    p[0] = Nodo('break',[p[1]])
     
 def p_instruccion12(p):
     'instruccion : BEGIN declaraciones END'
@@ -262,7 +264,7 @@ def p_exprlist1(p):
     
 def p_exprlist2(p):
     'exprlist : expression'
-    p[0] = p[1]
+    p[0] = NodoExprList(p[1])
       
 def p_expression1(p):
     'expression : expression opsuma term'    
@@ -271,6 +273,7 @@ def p_expression1(p):
 def p_expression2(p):
     'expression : term'    
     p[0] = p[1]
+
 
 def p_opsuma1(p):
     "opsuma : '+'"
@@ -298,7 +301,7 @@ def p_opmult2(p):
     
 def p_factor1(p):
     "factor : '(' expression ')'"
-    p[0] = p[1]
+    p[0] = p[2]
     
 def p_factor2(p):
     'factor : numero'
@@ -326,7 +329,7 @@ def p_factor7(p):
     
 def p_location1(p):
     'location : IDENTIFICADOR'
-    p[0] = p[1]
+    p[0]= NodoIdentificador(p[1])
     
 def p_location2(p):
     "location : IDENTIFICADOR '[' index ']'"
@@ -335,10 +338,12 @@ def p_location2(p):
 def p_conversion_tipo1(p):
     "conversion_tipo : INT '(' expression ')' "
     p[0] = NodoConversionTipo(NodoTipo(p[1]), p[3])
+    p[0].datatype = 'int'
     
 def p_conversion_tipo2(p):
     "conversion_tipo : FLOAT '(' expression ')' "
     p[0] = NodoConversionTipo(NodoTipo(p[1]), p[3])
+    p[0].datatype = 'float'
     
 def p_index1(p):
     'index : expression'
@@ -359,10 +364,12 @@ def p_literal3(p):
 def p_numero1(p):
     'numero : ENTERO'
     p[0]=NodoNumero(p[1])
+    p[0].datatype = 'int'
 
 def p_numero2(p):
     'numero : FLOTANTE'
     p[0]=NodoNumero(p[1])
+    p[0].datatype = 'float'
     
 def p_empty(p):
     'empty :'
@@ -381,14 +388,25 @@ yacc.yacc()
 #Aumentar el limite de recursion para entradas muy grandes
 sys.setrecursionlimit(5000)
 
+#def parse(data):
+#    try:
+#        root = yacc.parse(data)
+#        if root:
+#            root.accept(VisitanteTabla())
+#            root.accept(VisitanteTipo())
+#            #root.imprimir(1)
+#            pass
+#    except Exception,e:
+#        print e
+#        sys.exit()
+
 def parse(data):
-    try:
-        root = yacc.parse(data)
-        if root:
-            #root.imprimir(1)
-            pass
-    except Exception:
-        sys.exit()
+    root = yacc.parse(data)
+    if root:
+        root.accept(VisitanteTabla())
+        root.accept(VisitanteTipo())
+    sys.exit()
+
 try:
     filename = sys.argv[1]
     f = open(filename)
