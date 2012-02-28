@@ -63,12 +63,7 @@ class VisitanteGenerar(Visitante):
             if objeto.etiqueta == 'str_print':
                 print >>self.file, "\n! print (start)"
                 label = self.new_label()
-                hoja = objeto.hojas[0]
-                if isinstance(hoja, NodoNumero):
-                    print >>self.data, '{0}:  .asciiz "{1}"'.format(label, hoja.expression)
-                #TODO: Acciones para el la instruccion print con un identificador
-                else:
-                    print >>self.data, '{0}:  .asciiz "{1}"'.format(label, hoja)
+                print >>self.data, '{0}:  .asciiz "{1}"'.format(label, objeto.hojas[0])
                 print >>self.file, "! print (end)"
             
             if objeto.etiqueta == 'expr_not':
@@ -96,12 +91,33 @@ class VisitanteGenerar(Visitante):
         
         elif isinstance(objeto, NodoEstructuraFuncion):
                 id = objeto.identificador.identificador
+                variables = objeto.locales
                 print >>self.file, "\n! funcion %s (start)" % id
                 print >>self.file, "    .global ", id
                 print >>self.file, "%s:" % id
+                elementos = 64
+                if len(variables) > 0:
+                    for variable in variables:
+                        if variables[variable]['tipo'] == 'variable':
+                            elementos += 4
+                        else:
+                            elementos += 4*variables[variable]['size']
+                    print >>self.file, "    addi $sp, $sp, -", elementos
                 if objeto.locals:
                     objeto.locals.accept(self)
                 objeto.declaraciones.accept(self)
+                print>>self.file, self.new_label()
+                
+                if len(variables) > 0:
+                    print >>self.file, "    addi $sp, $sp, ", elementos
+                
+                if id == 'main':
+                    print >>self.file, "    add $v0, $zero,$zero"
+                    print >>self.file, "    call _exit"
+                    print >>self.file, "    nop" #TODO: verificar si nop es asi en MIPS
+                else:
+                    print >>self.file, "    jr $ra"#TODO: Verificar si jr $ra tambien se incluye en main o no
+                
                 print >>self.file, "! funcion %s (end)" % id
         
         elif isinstance(objeto, NodoArguments):
