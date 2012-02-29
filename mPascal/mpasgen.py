@@ -107,10 +107,15 @@ class VisitanteGenerar(Visitante):
                         print >>self.file, "    sw $v0, %d($fp)" % objeto.hojas[0].ambito[id]['offset']
                 
                 elif objeto.hojas[0].datatype == 'float':
-                    print >>self.file, "!  call mreadf()"
-                    print >>self.file, "    call mreadf"
-                    print >>self.file, "    nop" 
-                    print >>self.file, "    sw $v0, result"#TODO: donde se guarda lo que ha sido leido?
+                    print >>self.file, "    li $v0, 6"
+                    print >>self.file, "    syscall"
+                    print >>self.file, "    nop" #TODO: Es necesario el nop?
+                    id = objeto.hojas[0].identificador
+                    if objeto.hojas[0].index:
+                        objeto.hojas[0].index.accept(self)
+                        print >>self.file, "    sw $f0, %d($fp)" % objeto.hojas[0].ambito[id]['offset'] + (objeto.hojas[0].index.expression*4)
+                    else:
+                        print >>self.file, "    sw $f0, %d($fp)" % objeto.hojas[0].ambito[id]['offset']
                 print >>self.file, "! read (end)"
             
             if objeto.etiqueta == 'str_print':
@@ -245,7 +250,11 @@ class VisitanteGenerar(Visitante):
             id = objeto.location.identificador
             if objeto.location.index:
                 objeto.location.index.accept(self)
-                print >>self.file, "    sw {0}, {1}($fp)".format(self.pop(), str(objeto.location.ambito[id]['offset'] + (objeto.location.index.expression*4)))
+                indice = self.pop()
+                print >>self.file, "    sll $t0, %s, 2" % indice
+                print >>self.file, "    addi $t0, $t0, ", objeto.location.ambito[id]['offset']
+                print >>self.file, "    add $t0, $t0, $fp"
+                print >>self.file, "    sw %s, 0($t0)" % self.pop()
             else:
                 print >>self.file, "    sw {0}, {1}($fp)".format(self.pop(), str(objeto.location.ambito[id]['offset']))
             print >>self.file, "! assign (end)"
@@ -254,9 +263,11 @@ class VisitanteGenerar(Visitante):
             id = objeto.identificador
             if objeto.index:
                 objeto.index.accept(self)
-                print >>self.file, "!  index := pop"
-                print >>self.file, "!  push %s[index]" % id
-                print >>self.file, "    lw {0}, {1}($fp)".format(self.push(), str(objeto.ambito[id]['offset'] + (objeto.index.expression*4)))
+                indice = self.pop()
+                print >>self.file, "    sll $t0, %s, 2" % indice
+                print >>self.file, "    addi $t0, $t0, ", objeto.ambito[id]['offset']
+                print >>self.file, "    add $t0, $t0, $fp"
+                print >>self.file, "    lw %s, 0($t0)" % self.push()
             else:
                 print >>self.file, "!  push", id
                 print >>self.file, "    lw {0}, {1}($fp)".format(self.push(), str(objeto.ambito[id]['offset']))
@@ -287,9 +298,17 @@ class VisitanteGenerar(Visitante):
                 objeto.term.accept(self)
             objeto.factor.accept(self)          
             if objeto.op.op == '*':
-                print >>self.file, "!  mul"
+                print >>self.file, "!  mult"
+                rt = self.pop()
+                rs = self.pop()
+                print >>self.file, "    mult {0}, {1}".format(rs,rt)
+                print >>self.file, "    mflo %s" % self.push()
             else:
                 print >>self.file, "!  div"
+                rt = self.pop()
+                rs = self.pop()
+                print >>self.file, "    div {0}, {1}".format(rs,rt)
+                print >>self.file, "    mflo %s" % self.push()
             
         elif isinstance(objeto, NodoFactor):
             objeto.expression.accept(self)
@@ -368,7 +387,7 @@ class VisitanteGenerar(Visitante):
             numero = objeto.expression
             print >>self.file, "!  push", numero
             if abs(numero) <= 4095:
-                print >>self.file, "    move {0}, {1}".format(self.push(),str(numero))
+                print >>self.file, "    li {0}, {1}".format(self.push(),str(numero))
             else:
                 label = self.new_label()
                 print >>self.file, '    la $t0, ', label#TODO: Verificar que asi se hace la parte de las etiquetas 
