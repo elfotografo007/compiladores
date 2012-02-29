@@ -48,6 +48,16 @@ class VisitanteGenerar(Visitante):
                     hoja.accept(self)
                 print >>self.file, "!  expr := pop"
                 print >>self.file, "!  write(expr)"
+                if objeto.hojas[0].datatype == 'int':
+                    print >>self.file, "!  call mwritei(int)"
+                    print >>self.file, "    move expr, $v0"
+                    print >>self.file, "    call mwritei"
+                    print >>self.file, "    nop" 
+                elif objeto.hojas[0].datatype == 'float':
+                    print >>self.file, "!  call mwritef(float)"
+                    print >>self.file, "    move expr, $v0"
+                    print >>self.file, "    call mwritef"
+                    print >>self.file, "    nop" 
                 print >>self.file, "! write (end)"
                 
             if objeto.etiqueta == 'declaraciones_funcion':
@@ -56,14 +66,25 @@ class VisitanteGenerar(Visitante):
                     
             if objeto.etiqueta == 'str_read':
                 print >>self.file, "\n! read (start)"
-#                for hoja in objeto.hojas:
-#                    hoja.accept(self)
+                if objeto.hojas[0].datatype == 'int':
+                    print >>self.file, "!  call mreadi()"
+                    print >>self.file, "    call mreadi"
+                    print >>self.file, "    nop" 
+                    print >>self.file, "    sw $v0, result"#TODO: donde se guarda lo que ha sido leido?
+                elif objeto.hojas[0].datatype == 'float':
+                    print >>self.file, "!  call mreadf()"
+                    print >>self.file, "    call mreadf"
+                    print >>self.file, "    nop" 
+                    print >>self.file, "    sw $v0, result"#TODO: donde se guarda lo que ha sido leido?
                 print >>self.file, "! read (end)"
             
             if objeto.etiqueta == 'str_print':
                 print >>self.file, "\n! print (start)"
                 label = self.new_label()
                 print >>self.data, '{0}:  .asciiz "{1}"'.format(label, objeto.hojas[0])
+                print >>self.file, '    lui $v0, ', label
+                print >>self.file, '    ori $v0, $v0, ', label
+                print >>self.file, '    call mprint'
                 print >>self.file, "! print (end)"
             
             if objeto.etiqueta == 'expr_not':
@@ -114,7 +135,7 @@ class VisitanteGenerar(Visitante):
                 if id == 'main':
                     print >>self.file, "    add $v0, $zero,$zero"
                     print >>self.file, "    call _exit"
-                    print >>self.file, "    nop" #TODO: verificar si nop es asi en MIPS
+                    print >>self.file, "    nop"
                 else:
                     print >>self.file, "    jr $ra"#TODO: Verificar si jr $ra tambien se incluye en main o no
                 
