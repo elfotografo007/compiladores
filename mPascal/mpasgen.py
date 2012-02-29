@@ -96,10 +96,16 @@ class VisitanteGenerar(Visitante):
             if objeto.etiqueta == 'str_read':
                 print >>self.file, "\n! read (start)"
                 if objeto.hojas[0].datatype == 'int':
-                    print >>self.file, "!  call mreadi()"
-                    print >>self.file, "    call mreadi"
-                    print >>self.file, "    nop" 
-                    print >>self.file, "    sw $v0, result"#TODO: donde se guarda lo que ha sido leido?
+                    print >>self.file, "    li $v0, 5"
+                    print >>self.file, "    syscall"
+                    print >>self.file, "    nop" #TODO: Es necesario el nop?
+                    id = objeto.hojas[0].identificador
+                    if objeto.hojas[0].index:
+                        objeto.hojas[0].index.accept(self)
+                        print >>self.file, "    sw $v0, %d($fp)" % objeto.hojas[0].ambito[id]['offset'] + (objeto.hojas[0].index.expression*4)
+                    else:
+                        print >>self.file, "    sw $v0, %d($fp)" % objeto.hojas[0].ambito[id]['offset']
+                
                 elif objeto.hojas[0].datatype == 'float':
                     print >>self.file, "!  call mreadf()"
                     print >>self.file, "    call mreadf"
@@ -111,9 +117,9 @@ class VisitanteGenerar(Visitante):
                 print >>self.file, "\n! print (start)"
                 label = self.new_label()
                 print >>self.data, '{0}:  .asciiz {1}'.format(label, objeto.hojas[0])
-                print >>self.file, '    lui $v0, ', label
-                print >>self.file, '    ori $v0, $v0, ', label
-                print >>self.file, '    call mprint'
+                print >>self.file, '    la $a0, ', label
+                print >>self.file, '    li $v0, 4'
+                print >>self.file, '    syscall'
                 print >>self.file, "! print (end)"
             
             if objeto.etiqueta == 'expr_not':
@@ -155,6 +161,7 @@ class VisitanteGenerar(Visitante):
                             elementos += 4*variables[variable]['size']
                             variables[variable]['offset'] = elementos * -1
                     print >>self.file, "    addi $sp, $sp, -", elementos + 64
+                    
                 if objeto.locals:
                     objeto.locals.accept(self)
                 objeto.declaraciones.accept(self)
@@ -162,7 +169,7 @@ class VisitanteGenerar(Visitante):
                 
                 if len(variables) > 0:
                     print >>self.file, "    addi $sp, $sp, ", elementos
-                
+                    
                 if id == 'main':
                     print >>self.file, "    add $v0, $zero,$zero"
                     print >>self.file, "    call _exit"
@@ -235,7 +242,12 @@ class VisitanteGenerar(Visitante):
         elif isinstance(objeto, NodoAsign):
             print >>self.file, "\n! assign (start)"
             objeto.expression.accept(self)
-            print >>self.file, "!  %s := pop" % objeto.location.identificador
+            id = objeto.location.identificador
+            if objeto.location.index:
+                objeto.location.index.accept(self)
+                print >>self.file, "    sw {0}, {1}($fp)".format(self.pop(), str(objeto.location.ambito[id]['offset'] + (objeto.location.index.expression*4)))
+            else:
+                print >>self.file, "    sw {0}, {1}($fp)".format(self.pop(), str(objeto.location.ambito[id]['offset']))
             print >>self.file, "! assign (end)"
             
         elif isinstance(objeto, NodoIdentificador):
