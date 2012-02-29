@@ -172,6 +172,7 @@ class VisitanteTabla(Visitante):
                 print 'error semantico, identificador no declarado: %s' % objeto.identificador
             else:
                 if objeto.index:
+                    objeto.index.accept(self)
                     if isinstance(objeto.index, NodoExpression):
                         objeto.indice = objeto.index.expression
                 if ambito[objeto.identificador]['tipo'] == 'variable' or ambito[objeto.identificador]['tipo'] == 'arreglo':
