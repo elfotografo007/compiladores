@@ -116,14 +116,16 @@ class VisitanteGenerar(Visitante):
                 print >>self.file, "\n! funcion %s (start)" % id
                 print >>self.file, "    .global ", id
                 print >>self.file, "%s:" % id
-                elementos = 64
+                elementos = 0
                 if len(variables) > 0:
                     for variable in variables:
                         if variables[variable]['tipo'] == 'variable':
                             elementos += 4
+                            variables[variable]['offset'] = elementos * -1
                         else:
                             elementos += 4*variables[variable]['size']
-                    print >>self.file, "    addi $sp, $sp, -", elementos
+                            variables[variable]['offset'] = elementos * -1
+                    print >>self.file, "    addi $sp, $sp, -", elementos + 64
                 if objeto.locals:
                     objeto.locals.accept(self)
                 objeto.declaraciones.accept(self)
