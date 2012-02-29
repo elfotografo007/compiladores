@@ -284,7 +284,13 @@ class VisitanteGenerar(Visitante):
             
         elif isinstance(objeto, NodoUnario):
             objeto.expression.accept(self)
-
+            if objeto.op == 'not':
+                rs = self.pop()
+                print >>self.file, "    nor {0}, {1}, $zero".format(self.push(), rs)
+            elif objeto.op == '-':
+                rs = self.pop()
+                print >>self.file, "    sub {0}, $zero, {1}".format(self.push(), rs)
+                
         elif isinstance(objeto, NodoExpr_Or):
             if objeto.expr_or:
                 objeto.expr_or.accept(self)
