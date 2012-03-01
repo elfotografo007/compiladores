@@ -167,27 +167,33 @@ class VisitanteGenerar(Visitante):
                             variables[variable]['offset'] = elementos * -1
                     print >>self.file, "    addi $sp, $sp, -", elementos + 64
                     print >>self.file, "    sw $ra, 0($sp)"
-                    for i in range [8]:
+                    for i in range(8):
                         offset = (i + 1) * 4
                         print >>self.file, "    sw $s{0}, {1}($sp) ".format(str(i),str(offset))
-
+                else:
+                    print >>self.file, "    addi $sp, $sp, -", 4
+                    print >>self.file, "    sw $ra, 0($sp)"
                 if objeto.locals:
                     objeto.locals.accept(self)
                 objeto.declaraciones.accept(self)
                 print>>self.file, self.new_label()
-                for i in range [8]:
-                    offset = (i + 1) * 4
-                    print >>self.file,"    lw $s{0}, {1}($sp)".format(str(i),str(offset))
-                print >>self.file,"    lw $ra, 0($sp)"
+                
+                
                 if len(variables) > 0:
-                    print >>self.file, "    addi $sp, $sp, ", elementos + 64
-
-                if id == 'main':
-                    print >>self.file, "    add $v0, $zero,$zero"
-                    print >>self.file, "    call _exit"
-                    print >>self.file, "    nop"
+                    for i in range(8):
+                        offset = (i + 1) * 4
+                        print >>self.file,"    lw $s{0}, {1}($sp)".format(str(i),str(offset))
+                        print >>self.file,"    lw $ra, 0($sp)"
+                        print >>self.file, "    addi $sp, $sp, ", elementos + 64
                 else:
-                    print >>self.file, "    jr $ra"#TODO: Verificar si jr $ra tambien se incluye en main o no
+                    print >>self.file,"    lw $ra, 0($sp)"
+                    print >>self.file, "    addi $sp, $sp, ", 4
+                    
+                if id == 'main':
+                    print >>self.file, "    li $v0, 10"
+                    print >>self.file, "    syscall"
+                else:
+                    print >>self.file, "    jr $ra"
                 
                 print >>self.file, "! funcion %s (end)" % id
         
@@ -397,7 +403,7 @@ class VisitanteGenerar(Visitante):
                 print >>self.file, "    li {0}, {1}".format(self.push(),str(numero))
             else:
                 label = self.new_label()
-                print >>self.file, '    la $t0, ', label#TODO: Verificar que asi se hace la parte de las etiquetas 
+                print >>self.file, '    la $t0, ', label
                 print >>self.file, '    lw %s, 0($t0)' % self.push()
                 if objeto.datatype == 'int': 
                     print >>self.data, '{0}:  .word  {1}'.format(label, str(numero))

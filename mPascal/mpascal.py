@@ -25,5 +25,16 @@ if __name__ == '__main__':
                 outf.close()
         except Exception, e:
             print e
+#        filename = sys.argv[1]
+#        f = open(filename)
+#        data = f.read()
+#        f.close()
+#        top = mpasparse.parse(data)
+#        if top:
+#            outf = open(outname, "w")
+#            visitante = VisitanteGenerar(outf)
+#            visitante.generate(top)
+#            outf.close()
+
     else:
         print 'Uso: mpasparse.py nombre_archivo_fuente'
