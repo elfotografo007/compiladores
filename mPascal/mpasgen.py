@@ -166,15 +166,22 @@ class VisitanteGenerar(Visitante):
                             elementos += 4*variables[variable]['size']
                             variables[variable]['offset'] = elementos * -1
                     print >>self.file, "    addi $sp, $sp, -", elementos + 64
-                    
+                    print >>self.file, "    sw $ra, 0($sp)"
+                    for i in range [8]:
+                        offset = (i + 1) * 4
+                        print >>self.file, "    sw $s{0}, {1}($sp) ".format(str(i),str(offset))
+
                 if objeto.locals:
                     objeto.locals.accept(self)
                 objeto.declaraciones.accept(self)
                 print>>self.file, self.new_label()
-                
+                for i in range [8]:
+                    offset = (i + 1) * 4
+                    print >>self.file,"    lw $s{0}, {1}($sp)".format(str(i),str(offset))
+                print >>self.file,"    lw $ra, 0($sp)"
                 if len(variables) > 0:
-                    print >>self.file, "    addi $sp, $sp, ", elementos
-                    
+                    print >>self.file, "    addi $sp, $sp, ", elementos + 64
+
                 if id == 'main':
                     print >>self.file, "    add $v0, $zero,$zero"
                     print >>self.file, "    call _exit"
