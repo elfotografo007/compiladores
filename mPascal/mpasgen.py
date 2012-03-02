@@ -28,15 +28,15 @@ class VisitanteGenerar(Visitante):
         
     def new_label(self):
         self.labelCount += 1
-        return ".L%d" % self.labelCount
+        return "L%d" % self.labelCount
     
     def push(self):
         registro = "$s%d" % self.regCount
         if self.regCount > 7:
             registro = "$s%d" % (self.regCount-8)
             if registro not in self.regList:
-                print >>self.file, "    addi $sp,$sp, -4"
-                print >>self.file, "    sw %s, 0($sp)" % registro
+                print >>self.file, "    addi $sp,$sp,-4"
+                print >>self.file, "    sw %s,0($sp)" % registro
             self.regList[registro] = False
         self.regCount += 1
         return registro
@@ -49,8 +49,8 @@ class VisitanteGenerar(Visitante):
         if len(self.regList) > 0:
             if registro in self.regList:
                 if self.regList[registro]:
-                    print >>self.file, "    lw %s, 0($sp)" % registro
-                    print >>self.file, "    addi $sp,$sp, 4"
+                    print >>self.file, "    lw %s,0($sp)" % registro
+                    print >>self.file, "    addi $sp,$sp,4"
                     del self.regList[registro]
                 else:
                     self.regList[registro] = True
@@ -59,8 +59,8 @@ class VisitanteGenerar(Visitante):
     def generate(self, top):
         print >>self.file, "!Creado por mpascal.py"
         print >>self.file, "! Esteban Santa y Andres Torres, IS744 (2012-1)"
-        print >>self.file, '    .section ".text"'
-        print >>self.data, '    .section ".data"'
+        print >>self.file, '    .text'
+        print >>self.data, '    .data'
         self.visiteme(top)
         print >>self.file, self.data.getvalue()
         
@@ -96,34 +96,34 @@ class VisitanteGenerar(Visitante):
             if objeto.etiqueta == 'str_read':
                 print >>self.file, "\n! read (start)"
                 if objeto.hojas[0].datatype == 'int':
-                    print >>self.file, "    li $v0, 5"
+                    print >>self.file, "    li $v0,5"
                     print >>self.file, "    syscall"
                     print >>self.file, "    nop" #TODO: Es necesario el nop?
                     id = objeto.hojas[0].identificador
                     if objeto.hojas[0].index:
                         objeto.hojas[0].index.accept(self)
-                        print >>self.file, "    sw $v0, %d($fp)" % objeto.hojas[0].ambito[id]['offset'] + (objeto.hojas[0].index.expression*4)
+                        print >>self.file, "    sw $v0,%d($fp)" % objeto.hojas[0].ambito[id]['offset'] + (objeto.hojas[0].index.expression*4)
                     else:
-                        print >>self.file, "    sw $v0, %d($fp)" % objeto.hojas[0].ambito[id]['offset']
+                        print >>self.file, "    sw $v0,%d($fp)" % objeto.hojas[0].ambito[id]['offset']
                 
                 elif objeto.hojas[0].datatype == 'float':
-                    print >>self.file, "    li $v0, 6"
+                    print >>self.file, "    li $v0,6"
                     print >>self.file, "    syscall"
                     print >>self.file, "    nop" #TODO: Es necesario el nop?
                     id = objeto.hojas[0].identificador
                     if objeto.hojas[0].index:
                         objeto.hojas[0].index.accept(self)
-                        print >>self.file, "    sw $f0, %d($fp)" % objeto.hojas[0].ambito[id]['offset'] + (objeto.hojas[0].index.expression*4)
+                        print >>self.file, "    sw $f0,%d($fp)" % objeto.hojas[0].ambito[id]['offset'] + (objeto.hojas[0].index.expression*4)
                     else:
-                        print >>self.file, "    sw $f0, %d($fp)" % objeto.hojas[0].ambito[id]['offset']
+                        print >>self.file, "    sw $f0,%d($fp)" % objeto.hojas[0].ambito[id]['offset']
                 print >>self.file, "! read (end)"
             
             if objeto.etiqueta == 'str_print':
                 print >>self.file, "\n! print (start)"
                 label = self.new_label()
                 print >>self.data, '{0}:  .asciiz {1}'.format(label, objeto.hojas[0])
-                print >>self.file, '    la $a0, ', label
-                print >>self.file, '    li $v0, 4'
+                print >>self.file, '    la $a0,', label
+                print >>self.file, '    li $v0,4'
                 print >>self.file, '    syscall'
                 print >>self.file, "! print (end)"
             
@@ -154,7 +154,7 @@ class VisitanteGenerar(Visitante):
                 id = objeto.identificador.identificador
                 variables = objeto.locales
                 print >>self.file, "\n! funcion %s (start)" % id
-                print >>self.file, "    .global ", id
+                print >>self.file, "    .globl ", id
                 print >>self.file, "%s:" % id
                 elementos = 0
                 if len(variables) > 0:
@@ -165,32 +165,32 @@ class VisitanteGenerar(Visitante):
                         else:
                             elementos += 4*variables[variable]['size']
                             variables[variable]['offset'] = elementos * -1
-                    print >>self.file, "    addi $sp, $sp, -", elementos + 64
-                    print >>self.file, "    sw $ra, 0($sp)"
+                    print >>self.file, "    addi $sp,$sp, -", elementos + 64
+                    print >>self.file, "    sw $ra,0($sp)"
                     for i in range(8):
                         offset = (i + 1) * 4
-                        print >>self.file, "    sw $s{0}, {1}($sp) ".format(str(i),str(offset))
+                        print >>self.file, "    sw $s{0},{1}($sp)".format(str(i),str(offset))
                 else:
-                    print >>self.file, "    addi $sp, $sp, -", 4
-                    print >>self.file, "    sw $ra, 0($sp)"
+                    print >>self.file, "    addi $sp,$sp,-4"
+                    print >>self.file, "    sw $ra,0($sp)"
                 if objeto.locals:
                     objeto.locals.accept(self)
                 objeto.declaraciones.accept(self)
-                print>>self.file, self.new_label()
+                #print>>self.file, self.new_label() #TODO: Averiguar por que estaba aqui esta instruccion porque no tengo idea
                 
                 
                 if len(variables) > 0:
                     for i in range(8):
                         offset = (i + 1) * 4
-                        print >>self.file,"    lw $s{0}, {1}($sp)".format(str(i),str(offset))
-                        print >>self.file,"    lw $ra, 0($sp)"
-                        print >>self.file, "    addi $sp, $sp, ", elementos + 64
+                        print >>self.file,"    lw $s{0},{1}($sp)".format(str(i),str(offset))
+                        print >>self.file,"    lw $ra,0($sp)"
+                        print >>self.file, "    addi $sp,$sp, ", elementos + 64
                 else:
-                    print >>self.file,"    lw $ra, 0($sp)"
-                    print >>self.file, "    addi $sp, $sp, ", 4
+                    print >>self.file,"    lw $ra,0($sp)"
+                    print >>self.file, "    addi $sp,$sp,4"
                     
                 if id == 'main':
-                    print >>self.file, "    li $v0, 10"
+                    print >>self.file, "    li $v0,10"
                     print >>self.file, "    syscall"
                 else:
                     print >>self.file, "    jr $ra"
@@ -221,7 +221,7 @@ class VisitanteGenerar(Visitante):
             end_loop_label = self.new_label()
             print >>self.file, "%s:"  % loop_label
             objeto.relation.accept(self)
-            print >>self.file, "    beq {0}, $zero, {1}".format(self.pop(), end_loop_label)
+            print >>self.file, "    beq {0},$zero,{1}".format(self.pop(), end_loop_label)
             print >>self.file, "    nop"
             objeto.stmts.accept(self)
             print >>self.file, "    j ", loop_label
@@ -234,7 +234,7 @@ class VisitanteGenerar(Visitante):
             print >>self.file, "\n! if (start)"
             objeto.relation.accept(self)
             end_if_label = self.new_label()
-            print >>self.file, "    beq {0}, $zero, {1}".format(self.pop(), end_if_label)
+            print >>self.file, "    beq {0},$zero,{1}".format(self.pop(), end_if_label)
             print >>self.file, "    nop"
             objeto.stmts.accept(self)
             print >>self.file, "%s:" % end_if_label
@@ -246,7 +246,7 @@ class VisitanteGenerar(Visitante):
             end_if_label = self.new_label()
             else_label = self.new_label()
             objeto.relation.accept(self)
-            print >>self.file, "    beq {0}, $zero, {1}".format(self.pop(), end_if_label)
+            print >>self.file, "    beq {0},$zero,{1}".format(self.pop(), end_if_label)
             print >>self.file, "    nop"
             objeto.stmts1.accept(self)
             print >>self.file, "    j ", end_if_label
@@ -264,12 +264,12 @@ class VisitanteGenerar(Visitante):
             if objeto.location.index:
                 objeto.location.index.accept(self)
                 indice = self.pop()
-                print >>self.file, "    sll $t0, %s, 2" % indice
-                print >>self.file, "    addi $t0, $t0, ", objeto.location.ambito[id]['offset']
-                print >>self.file, "    add $t0, $t0, $fp"
-                print >>self.file, "    sw %s, 0($t0)" % self.pop()
+                print >>self.file, "    sll $t0,%s,2" % indice
+                print >>self.file, "    addi $t0,$t0,", objeto.location.ambito[id]['offset']
+                print >>self.file, "    add $t0,$t0,$fp"
+                print >>self.file, "    sw %s,0($t0)" % self.pop()
             else:
-                print >>self.file, "    sw {0}, {1}($fp)".format(self.pop(), str(objeto.location.ambito[id]['offset']))
+                print >>self.file, "    sw {0},{1}($fp)".format(self.pop(), str(objeto.location.ambito[id]['offset']))
             print >>self.file, "! assign (end)"
             
         elif isinstance(objeto, NodoIdentificador):
@@ -277,13 +277,13 @@ class VisitanteGenerar(Visitante):
             if objeto.index:
                 objeto.index.accept(self)
                 indice = self.pop()
-                print >>self.file, "    sll $t0, %s, 2" % indice
-                print >>self.file, "    addi $t0, $t0, ", objeto.ambito[id]['offset']
-                print >>self.file, "    add $t0, $t0, $fp"
-                print >>self.file, "    lw %s, 0($t0)" % self.push()
+                print >>self.file, "    sll $t0,%s,2" % indice
+                print >>self.file, "    addi $t0,$t0, ", objeto.ambito[id]['offset']
+                print >>self.file, "    add $t0,$t0,$fp"
+                print >>self.file, "    lw %s,0($t0)" % self.push()
             else:
                 print >>self.file, "!  push", id
-                print >>self.file, "    lw {0}, {1}($fp)".format(self.push(), str(objeto.ambito[id]['offset']))
+                print >>self.file, "    lw {0},{1}($fp)".format(self.push(), str(objeto.ambito[id]['offset']))
                 
         
         elif isinstance(objeto, NodoExprList):
@@ -301,10 +301,10 @@ class VisitanteGenerar(Visitante):
             rt = self.pop()
             if objeto.op.op == '+':
                 print >>self.file, "!  add"
-                print >>self.file, "    add {0}, {1},{2}".format(self.push(), rs, rt)
+                print >>self.file, "    add {0},{1},{2}".format(self.push(), rs, rt)
             else:
                 print >>self.file, "!  sub"
-                print >>self.file, "    sub {0}, {1},{2}".format(self.push(), rs, rt)
+                print >>self.file, "    sub {0},{1},{2}".format(self.push(), rs, rt)
             
         elif isinstance(objeto, NodoTerm):
             if objeto.term:
@@ -314,13 +314,13 @@ class VisitanteGenerar(Visitante):
                 print >>self.file, "!  mult"
                 rt = self.pop()
                 rs = self.pop()
-                print >>self.file, "    mult {0}, {1}".format(rs,rt)
+                print >>self.file, "    mult {0},{1}".format(rs,rt)
                 print >>self.file, "    mflo %s" % self.push()
             else:
                 print >>self.file, "!  div"
                 rt = self.pop()
                 rs = self.pop()
-                print >>self.file, "    div {0}, {1}".format(rs,rt)
+                print >>self.file, "    div {0},{1}".format(rs,rt)
                 print >>self.file, "    mflo %s" % self.push()
             
         elif isinstance(objeto, NodoFactor):
@@ -330,10 +330,10 @@ class VisitanteGenerar(Visitante):
             objeto.expression.accept(self)
             if objeto.op == 'not':
                 rs = self.pop()
-                print >>self.file, "    nor {0}, {1}, $zero".format(self.push(), rs)
+                print >>self.file, "    nor {0},{1},$zero".format(self.push(), rs)
             elif objeto.op == '-':
                 rs = self.pop()
-                print >>self.file, "    sub {0}, $zero, {1}".format(self.push(), rs)
+                print >>self.file, "    sub {0},$zero,{1}".format(self.push(), rs)
                 
         elif isinstance(objeto, NodoExpr_Or):
             if objeto.expr_or:
@@ -342,7 +342,7 @@ class VisitanteGenerar(Visitante):
             print >> self.file, "!  or"
             rs = self.pop()
             rt = self.pop()
-            print >>self.file, "    or {0}, {1},{2}".format(self.push(), rs, rt)
+            print >>self.file, "    or {0},{1},{2}".format(self.push(), rs, rt)
             
         elif isinstance(objeto, NodoExpr_And):
             if objeto.expr_and:
@@ -351,7 +351,7 @@ class VisitanteGenerar(Visitante):
             print >> self.file, "!  and"
             rs = self.pop()
             rt = self.pop()
-            print >>self.file, "    and {0}, {1},{2}".format(self.push(), rs, rt)
+            print >>self.file, "    and {0},{1},{2}".format(self.push(), rs, rt)
             
         elif isinstance(objeto, NodoComparacion):
             objeto.expression1.accept(self)
@@ -361,50 +361,50 @@ class VisitanteGenerar(Visitante):
                     print >>self.file, "!  lt"
                     rt = self.pop()
                     rs = self.pop()
-                    print >>self.file, "    slt {0}, {1}, {2}".format(self.push(), rs,rt)
+                    print >>self.file, "    slt {0},{1},{2}".format(self.push(), rs,rt)
                 elif objeto.op.op == '>':
                     print >>self.file, "!  gt"
                     rt = self.pop()
                     rs = self.pop()
-                    print >>self.file, "    slt {0}, {1}, {2}".format(self.push(), rt,rs)
+                    print >>self.file, "    slt {0},{1},{2}".format(self.push(), rt,rs)
                 elif objeto.op.op == '<=':
                     print >>self.file, "!  lte"
                     rt = self.pop()
                     rs = self.pop()
-                    print >>self.file, "    slt $t0, {1}, {2}".format(rt,rs)
-                    print >>self.file, "    nor %s, $t0, $zero"  % self.push()
+                    print >>self.file, "    slt $t0,{1},{2}".format(rt,rs)
+                    print >>self.file, "    nor %s,$t0,$zero"  % self.push()
                 elif objeto.op.op == '>=':
                     print >>self.file, "!  gte"
                     rt = self.pop()
                     rs = self.pop()
                     label = self.new_label()
-                    print >>self.file, "    slt $t0, {1}, {2}".format(rs,rt)
-                    print >>self.file, "    nor %s, $t0, $zero"  % self.push()
+                    print >>self.file, "    slt $t0,{1},{2}".format(rs,rt)
+                    print >>self.file, "    nor %s,$t0,$zero"  % self.push()
                 elif objeto.op.op == '==':
                     print >>self.file, "!  eq"
                     rt = self.pop()
                     rs = self.pop()
-                    print >>self.file, "    slt $t0, {1}, {2}".format(rs,rt)
-                    print >>self.file, "    slt $t1, {1}, {2}".format(rt,rs)
+                    print >>self.file, "    slt $t0,{1},{2}".format(rs,rt)
+                    print >>self.file, "    slt $t1,{1},{2}".format(rt,rs)
                     print >>self.ifle, "    and %s,$t0,$t1" % self.push()
                 elif objeto.op.op == '!=':
                     print >>self.file, "!  ne"
                     rt = self.pop()
                     rs = self.pop()
-                    print >>self.file, "    slt $t0, {1}, {2}".format(rs,rt)
-                    print >>self.file, "    slt $t1, {1}, {2}".format(rt,rs)
+                    print >>self.file, "    slt $t0,{1},{2}".format(rs,rt)
+                    print >>self.file, "    slt $t1,{1},{2}".format(rt,rs)
                     print >>self.file, "    and $t2,$t0,$t1"
-                    print >>self.file, "    nor %s, $t2, $zero"  % self.push()
+                    print >>self.file, "    nor %s,$t2,$zero"  % self.push()
                 
         elif isinstance(objeto, NodoNumero):
             numero = objeto.expression
             print >>self.file, "!  push", numero
             if abs(numero) <= 4095:
-                print >>self.file, "    li {0}, {1}".format(self.push(),str(numero))
+                print >>self.file, "    li {0},{1}".format(self.push(),str(numero))
             else:
                 label = self.new_label()
-                print >>self.file, '    la $t0, ', label
-                print >>self.file, '    lw %s, 0($t0)' % self.push()
+                print >>self.file, '    la $t0,', label
+                print >>self.file, '    lw %s,0($t0)' % self.push()
                 if objeto.datatype == 'int': 
                     print >>self.data, '{0}:  .word  {1}'.format(label, str(numero))
                 else:
