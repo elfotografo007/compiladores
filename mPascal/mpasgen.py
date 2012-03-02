@@ -171,7 +171,7 @@ class VisitanteGenerar(Visitante):
                         offset = (i + 1) * 4
                         print >>self.file, "    sw $s{0},{1}($sp)".format(str(i),str(offset))
                 else:
-                    print >>self.file, "    addi $sp,$sp,-4"
+                    print >>self.file, "    addi $sp,$sp,-32"
                     print >>self.file, "    sw $ra,0($sp)"
                 if objeto.locals:
                     objeto.locals.accept(self)
@@ -187,7 +187,7 @@ class VisitanteGenerar(Visitante):
                         print >>self.file, "    addi $sp,$sp, ", elementos + 64
                 else:
                     print >>self.file,"    lw $ra,0($sp)"
-                    print >>self.file, "    addi $sp,$sp,4"
+                    print >>self.file, "    addi $sp,$sp,32"
                     
                 if id == 'main':
                     print >>self.file, "    li $v0,10"
