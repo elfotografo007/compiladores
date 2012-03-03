@@ -138,10 +138,10 @@ class VisitanteGenerar(Visitante):
                     print >>self.file, "! push %s()" % objeto.hojas[0].identificador
 
             if objeto.etiqueta == 'str_return':
-                print >>self.file, "\n! return (start)"
-#                for hoja in objeto.hojas:
-#                    hoja.accept(self)
-                print >>self.file, "! return (end)"
+                for hoja in objeto.hojas:
+                    hoja.accept(self)
+                print >>self.file, "    move $v0,%s" % self.pop()
+                print >>self.file, "    j %s" % self.endLabel
         
         elif isinstance(objeto, NodoEstructuraFuncion):
                 id = objeto.identificador.identificador
@@ -170,7 +170,8 @@ class VisitanteGenerar(Visitante):
                 if objeto.locals:
                     objeto.locals.accept(self)
                 objeto.declaraciones.accept(self)
-                #print>>self.file, self.new_label() #TODO: Averiguar por que estaba aqui esta instruccion porque no tengo idea
+                self.endLabel = self.new_label()
+                print>>self.file, self.endLabel
                 
                 
                 if len(variables) > 0:
