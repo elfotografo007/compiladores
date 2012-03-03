@@ -136,7 +136,27 @@ class VisitanteGenerar(Visitante):
                     print >>self.file, "!  push {0}({1})".format(objeto.hojas[0].identificador, args.rstrip(','))
                 else:
                     print >>self.file, "! push %s()" % objeto.hojas[0].identificador
-
+                if self.argCount > 0:
+                    for hoja in objeto.hojas:
+                        if isinstance(objeto, NodoArguments):
+                            count =0
+                            if self.argCount > 4:
+                                print >>self.file, "    addi $sp,$sp,-" (self.argCount-4)*4
+                            for argument in objeto.arguments:
+                                if count < 4 :
+                                    print>> self.file, "    addi $a{0}, {1}, 0".format(str(count),argument.numeroDeLaPila)
+                                    # TODO remplazar en la linea anterior donde dice Numero De La Pila en la linea anterior, por el valor del argumento evaluado        
+                                if count >= 4 :
+                                     print >>self.file, "    sw {0},{1}($sp)".format(str(argument.numeroDeLaPila),str((count-4)*4))
+                                     # TODO remplazar en la linea anterior donde dice Numero De La Pila en la linea anterior, por el valor del argumento evaluado
+                                    
+                                    # segun entendi (en el pdf que le envie) el regidtro fp se debe dejar quieto
+                                    # para que los argumentos esten por encima de el y tener acceso a estos facilmente
+                              
+                
+                elif self.argCount >= 5:
+                    pass 
+            
             if objeto.etiqueta == 'str_return':
                 for hoja in objeto.hojas:
                     hoja.accept(self)
