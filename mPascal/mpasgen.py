@@ -73,17 +73,15 @@ class VisitanteGenerar(Visitante):
             if objeto.etiqueta == 'str_write':
                 for hoja in objeto.hojas:
                     hoja.accept(self)
-                print >>self.file, "!  expr := pop"
-                print >>self.file, "!  write(expr)"
                 if objeto.hojas[0].datatype == 'int':
-                    print >>self.file, "!  call mwritei(int)"
-                    print >>self.file, "    move expr, $v0"#TODO: verificar que se hace aqui con el expr
-                    print >>self.file, "    call mwritei"
+                    print >>self.file, "    move $a0,%s" % self.pop()
+                    print >>self.file, "    li $v0,1"
+                    print >>self.file, "    syscall"
                     print >>self.file, "    nop" 
                 elif objeto.hojas[0].datatype == 'float':
-                    print >>self.file, "!  call mwritef(float)"
-                    print >>self.file, "    move expr, $v0"#TODO: verificar que se hace aqui con el expr
-                    print >>self.file, "    call mwritef"
+                    print >>self.file, "    move $f12,%s" % self.pop()
+                    print >>self.file, "    li $v0,2"
+                    print >>self.file, "    syscall"
                     print >>self.file, "    nop"
                 
             if objeto.etiqueta == 'declaraciones_funcion':
@@ -149,6 +147,9 @@ class VisitanteGenerar(Visitante):
                 print >>self.file, "    .globl ", id
                 print >>self.file, "%s:" % id
                 elementos = 0
+                print >>self.file, "    addi $sp,$sp,-32"
+                print >>self.file, "    sw $fp,4($sp)"
+                print >>self.file, "    sw $ra,0($sp)"
                 if len(variables) > 0:
                     for variable in variables:
                         if variables[variable]['tipo'] == 'variable':
@@ -156,21 +157,17 @@ class VisitanteGenerar(Visitante):
                             variables[variable]['offset'] = elementos * -1
                         else:
                             elementos += 4*variables[variable]['size']
-                            variables[variable]['offset'] = elementos * -1
-                    print >>self.file, "    addi $sp,$sp, -", elementos + 64
-                    print >>self.file, "    sw $ra,0($sp)"
-                    print >>self.file, "    sw $fp,4($sp)"
+                            variables[variable]['offset'] = elementos *-1
+                    print >>self.file, "    addu $fp,$sp,%d" % (elementos + 4)
                     for i in range(8):
                         offset = (i + 2) * 4
                         print >>self.file, "    sw $s{0},{1}($sp)".format(str(i),str(offset))
                 else:
-                    print >>self.file, "    addi $sp,$sp,-32"
-                    print >>self.file, "    sw $fp,4($sp)"
-                    print >>self.file, "    sw $ra,0($sp)"
+                    print >>self.file, "    addu $fp,$sp,32"
                 if objeto.locals:
                     objeto.locals.accept(self)
                 objeto.declaraciones.accept(self)
-                self.endLabel = self.new_label()
+                self.endLabel = "%s:" % self.new_label()
                 print>>self.file, self.endLabel
                 
                 
@@ -180,7 +177,7 @@ class VisitanteGenerar(Visitante):
                         print >>self.file,"    lw $s{0},{1}($sp)".format(str(i),str(offset))
                     print >>self.file, "    lw $fp,4($sp)"
                     print >>self.file,"    lw $ra,0($sp)"
-                    print >>self.file, "    addi $sp,$sp, ", elementos + 64
+                    print >>self.file, "    addi $sp,$sp,%d" % (elementos + 64)
                 else:
                     print >>self.file, "    lw $fp,4($sp)"
                     print >>self.file,"    lw $ra,0($sp)"
