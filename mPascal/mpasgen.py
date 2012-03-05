@@ -139,6 +139,7 @@ class VisitanteGenerar(Visitante):
                 print >>self.file, "    move %s,$v0" % self.push()
                 if temp > 4:
                     print >>self.file, "    addi $sp,$sp,%d" % ((temp-4)*4)
+                    
             if objeto.etiqueta == 'str_return':
                 for hoja in objeto.hojas:
                     hoja.accept(self)
