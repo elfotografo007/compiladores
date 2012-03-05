@@ -19,7 +19,7 @@ class VisitanteGenerar(Visitante):
     
     def __init__(self, file):
         self.file = file
-        self.argCount = 1
+        self.argCount = 0
         self.data = StringIO()
         self.labelCount = 0
         self.regCount = 0
@@ -124,37 +124,18 @@ class VisitanteGenerar(Visitante):
                     
             if objeto.etiqueta == 'llamada':
                 if len(objeto.hojas) > 1:
-                    self.argCount = 1
+                    self.argCount = 0
                     objeto.hojas[1].accept(self)
-                    if not isinstance(objeto.hojas[1], NodoExprList):
-                        print >>self.file, "arg1 := pop"
-                    args = ''
-                    for i in range(1,self.argCount):
-                        args += 'arg%d,' % i
-                    print >>self.file, "!  push {0}({1})".format(objeto.hojas[0].identificador, args.rstrip(','))
-                else:
-                    print >>self.file, "! push %s()" % objeto.hojas[0].identificador
-                if self.argCount > 0:
-                    for hoja in objeto.hojas:
-                        if isinstance(objeto, NodoArguments):
-                            count =0
-                            if self.argCount > 4:
-                                print >>self.file, "    addi $sp,$sp,-" (self.argCount-4)*4
-                            for argument in objeto.arguments:
-                                if count < 4 :
-                                    print>> self.file, "    addi $a{0}, {1}, 0".format(str(count),argument.numeroDeLaPila)
-                                    # TODO remplazar en la linea anterior donde dice Numero De La Pila en la linea anterior, por el valor del argumento evaluado        
-                                if count >= 4 :
-                                     print >>self.file, "    sw {0},{1}($sp)".format(str(argument.numeroDeLaPila),str((count-4)*4))
-                                     # TODO remplazar en la linea anterior donde dice Numero De La Pila en la linea anterior, por el valor del argumento evaluado
-                                    
-                                    # segun entendi (en el pdf que le envie) el regidtro fp se debe dejar quieto
-                                    # para que los argumentos esten por encima de el y tener acceso a estos facilmente
-                              
+                    if self.argCount > 4:
+                        print >>self.file, "    addi $sp,$sp,%d" % ((self.argCount-4)*-4)
+                        for i in range(self.argCount-4):
+                            print >>self.file, "    sw {0},{1}($sp)".format(self.pop(), i*4)
+                        self.argCount = 4
+                    for i in range(self.argCount, 0, -1):
+                        print >>self.file, "    move $a{0},{1}".format(i-1, self.pop())
+                print >>self.file, "    jal %s" % objeto.hojas[0].identificador
+                print >>self.file, "    move %s,$v0" % self.push()
                 
-                elif self.argCount >= 5:
-                    pass 
-            
             if objeto.etiqueta == 'str_return':
                 for hoja in objeto.hojas:
                     hoja.accept(self)
@@ -167,9 +148,8 @@ class VisitanteGenerar(Visitante):
                 print >>self.file, "    .globl ", id
                 print >>self.file, "%s:" % id
                 elementos = 0
-                print >>self.file, "    addi $sp,$sp,-32"
-                print >>self.file, "    sw $fp,4($sp)"
-                print >>self.file, "    sw $ra,0($sp)"
+                argumentosFuncion = objeto.ambito[id]['arguments']
+                cantidadArgumentos = len(argumentosFuncion)
                 if len(variables) > 0:
                     for variable in variables:
                         if variables[variable]['tipo'] == 'variable':
@@ -178,12 +158,32 @@ class VisitanteGenerar(Visitante):
                         else:
                             elementos += 4*variables[variable]['size']
                             variables[variable]['offset'] = elementos *-1
-                    print >>self.file, "    addu $fp,$sp,%d" % (elementos + 4)
+                    print >>self.file, "    addi $sp,$sp,%d" % ((elementos + 64)*-1)
+                    print >>self.file, "    sw $fp,4($sp)"
+                    print >>self.file, "    sw $ra,0($sp)"
+                    print >>self.file, "    addu $fp,$sp,%d" % (elementos + 64)
                     for i in range(8):
                         offset = (i + 2) * 4
                         print >>self.file, "    sw $s{0},{1}($sp)".format(str(i),str(offset))
+                    if cantidadArgumentos > 0:
+                        if cantidadArgumentos > 4:
+                            for i in range(cantidadArgumentos-4):
+                                idArgumento= argumentosFuncion[i]['id']
+                                print >>self.file, "    lw $t0,%d($fp)" % (i*4)
+                                print >>self.file, "    sw $t0,%d($fp)" % variables[idArgumento]['offset']
+                            cantidadArgumentos = 4
+                        else:
+                            pass
+                    for i in range(-1,cantidadArgumentos*-1-1,-1):
+                        idArgumento= argumentosFuncion[i]['id']
+                        print >>self.file, "    sw $a{0},{1}($fp)".format(i*-1-1,variables[idArgumento]['offset'])
+                        print variables
                 else:
-                    print >>self.file, "    addu $fp,$sp,32"
+                    print >>self.file, "    addi $sp,$sp,-64"
+                    print >>self.file, "    sw $fp,4($sp)"
+                    print >>self.file, "    sw $ra,0($sp)"
+                    print >>self.file, "    addu $fp,$sp,64"
+                    
                 if objeto.locals:
                     objeto.locals.accept(self)
                 objeto.declaraciones.accept(self)
@@ -201,7 +201,7 @@ class VisitanteGenerar(Visitante):
                 else:
                     print >>self.file, "    lw $fp,4($sp)"
                     print >>self.file,"    lw $ra,0($sp)"
-                    print >>self.file, "    addi $sp,$sp,32"
+                    print >>self.file, "    addi $sp,$sp,64"
                     
                 if id == 'main':
                     print >>self.file, "    li $v0,10"
@@ -293,7 +293,6 @@ class VisitanteGenerar(Visitante):
             if objeto.exprlist:
                 objeto.exprlist.accept(self)
             objeto.expression.accept(self)
-            print >>self.file, "!  arg%d := pop" % self.argCount
             self.argCount += 1
             
         elif isinstance(objeto, NodoExpression):
