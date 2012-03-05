@@ -123,9 +123,11 @@ class VisitanteGenerar(Visitante):
                     hoja.accept(self)
                     
             if objeto.etiqueta == 'llamada':
+                temp = 0
                 if len(objeto.hojas) > 1:
                     self.argCount = 0
                     objeto.hojas[1].accept(self)
+                    temp = self.argCount
                     if self.argCount > 4:
                         print >>self.file, "    addi $sp,$sp,%d" % ((self.argCount-4)*-4)
                         for i in range(self.argCount-4):
@@ -135,7 +137,7 @@ class VisitanteGenerar(Visitante):
                         print >>self.file, "    move $a{0},{1}".format(i-1, self.pop())
                 print >>self.file, "    jal %s" % objeto.hojas[0].identificador
                 print >>self.file, "    move %s,$v0" % self.push()
-                
+                print >>self.file, "    addi $sp,$sp,%d" % ((temp-4)*4)
             if objeto.etiqueta == 'str_return':
                 for hoja in objeto.hojas:
                     hoja.accept(self)
@@ -147,6 +149,7 @@ class VisitanteGenerar(Visitante):
                 variables = objeto.locales
                 print >>self.file, "    .globl ", id
                 print >>self.file, "%s:" % id
+                self.endLabel = "%s" % self.new_label()
                 elementos = 0
                 argumentosFuncion = objeto.ambito[id]['arguments']
                 cantidadArgumentos = len(argumentosFuncion)
@@ -187,8 +190,7 @@ class VisitanteGenerar(Visitante):
                 if objeto.locals:
                     objeto.locals.accept(self)
                 objeto.declaraciones.accept(self)
-                self.endLabel = "%s:" % self.new_label()
-                print>>self.file, self.endLabel
+                print>>self.file, "%s:" % self.endLabel
                 
                 
                 if len(variables) > 0:
