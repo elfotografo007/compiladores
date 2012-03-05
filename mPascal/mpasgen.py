@@ -255,7 +255,7 @@ class VisitanteGenerar(Visitante):
             end_if_label = self.new_label()
             else_label = self.new_label()
             objeto.relation.accept(self)
-            print >>self.file, "    beq {0},$zero,{1}".format(self.pop(), end_if_label)
+            print >>self.file, "    beq {0},$zero,{1}".format(self.pop(), else_label)
             print >>self.file, "    nop"
             objeto.stmts1.accept(self)
             print >>self.file, "    j ", end_if_label
