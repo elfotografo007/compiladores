@@ -366,25 +366,25 @@ class VisitanteGenerar(Visitante):
                 elif objeto.op.op == '<=':
                     rt = self.pop()
                     rs = self.pop()
-                    print >>self.file, "    slt $t0,{1},{2}".format(rt,rs)
+                    print >>self.file, "    slt $t0,{0},{1}".format(rt,rs)
                     print >>self.file, "    nor %s,$t0,$zero"  % self.push()
                 elif objeto.op.op == '>=':
                     rt = self.pop()
                     rs = self.pop()
                     label = self.new_label()
-                    print >>self.file, "    slt $t0,{1},{2}".format(rs,rt)
+                    print >>self.file, "    slt $t0,{0},{1}".format(rs,rt)
                     print >>self.file, "    nor %s,$t0,$zero"  % self.push()
                 elif objeto.op.op == '==':
                     rt = self.pop()
                     rs = self.pop()
-                    print >>self.file, "    slt $t0,{1},{2}".format(rs,rt)
-                    print >>self.file, "    slt $t1,{1},{2}".format(rt,rs)
-                    print >>self.ifle, "    and %s,$t0,$t1" % self.push()
+                    print >>self.file, "    slt $t0,{0},{1}".format(rs,rt)
+                    print >>self.file, "    slt $t1,{0},{1}".format(rt,rs)
+                    print >>self.file, "    and %s,$t0,$t1" % self.push()
                 elif objeto.op.op == '!=':
                     rt = self.pop()
                     rs = self.pop()
-                    print >>self.file, "    slt $t0,{1},{2}".format(rs,rt)
-                    print >>self.file, "    slt $t1,{1},{2}".format(rt,rs)
+                    print >>self.file, "    slt $t0,{0},{1}".format(rs,rt)
+                    print >>self.file, "    slt $t1,{0},{1}".format(rt,rs)
                     print >>self.file, "    and $t2,$t0,$t1"
                     print >>self.file, "    nor %s,$t2,$zero"  % self.push()
                 
