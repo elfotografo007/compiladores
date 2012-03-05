@@ -137,7 +137,8 @@ class VisitanteGenerar(Visitante):
                         print >>self.file, "    move $a{0},{1}".format(i-1, self.pop())
                 print >>self.file, "    jal %s" % objeto.hojas[0].identificador
                 print >>self.file, "    move %s,$v0" % self.push()
-                print >>self.file, "    addi $sp,$sp,%d" % ((temp-4)*4)
+                if temp > 4:
+                    print >>self.file, "    addi $sp,$sp,%d" % ((temp-4)*4)
             if objeto.etiqueta == 'str_return':
                 for hoja in objeto.hojas:
                     hoja.accept(self)
@@ -301,8 +302,8 @@ class VisitanteGenerar(Visitante):
             if objeto.expression:
                 objeto.expression.accept(self)               
             objeto.term.accept(self)
-            rs = self.pop()
             rt = self.pop()
+            rs = self.pop()
             if objeto.op.op == '+':
                 print >>self.file, "    add {0},{1},{2}".format(self.push(), rs, rt)
             else:
@@ -366,27 +367,52 @@ class VisitanteGenerar(Visitante):
                 elif objeto.op.op == '<=':
                     rt = self.pop()
                     rs = self.pop()
-                    print >>self.file, "    slt $t0,{0},{1}".format(rt,rs)
-                    print >>self.file, "    nor %s,$t0,$zero"  % self.push()
+                    rd = self.push()
+                    yes_label = self.new_label()
+                    skip_label = self.new_label()
+                    print >>self.file, "    bne {0},{1},{2}".format(rt,rs,yes_label)
+                    print >>self.file, "    ori %s,$zero,1" % rd
+                    print >>self.file, "    beq $zero,$zero,%s" % skip_label
+                    print >>self.file, "%s:" % yes_label
+                    print >>self.file, "    slt {0},{1},{2}".format(rd,rs,rt)
+                    print >>self.file, "%s:" % skip_label
                 elif objeto.op.op == '>=':
                     rt = self.pop()
                     rs = self.pop()
-                    label = self.new_label()
-                    print >>self.file, "    slt $t0,{0},{1}".format(rs,rt)
-                    print >>self.file, "    nor %s,$t0,$zero"  % self.push()
+                    rd = self.push()
+                    yes_label = self.new_label()
+                    skip_label = self.new_label()
+                    print >>self.file, "    bne {0},{1},{2}".format(rt,rs,yes_label)
+                    print >>self.file, "    ori %s,$zero,1" % rd
+                    print >>self.file, "    beq $zero,$zero,%s" % skip_label
+                    print >>self.file, "%s:" % yes_label
+                    print >>self.file, "    slt {0},{1},{2}".format(rd,rt,rs)
+                    print >>self.file, "%s:" % skip_label
                 elif objeto.op.op == '==':
                     rt = self.pop()
                     rs = self.pop()
-                    print >>self.file, "    slt $t0,{0},{1}".format(rs,rt)
-                    print >>self.file, "    slt $t1,{0},{1}".format(rt,rs)
-                    print >>self.file, "    and %s,$t0,$t1" % self.push()
+                    rd = self.push()
+                    yes_label = self.new_label()
+                    skip_label = self.new_label()
+                    print >>self.file, "    beq {0},{1},{2}".format(rt,rs,yes_label)
+                    print >>self.file, "    ori %s,$zero,0" % rd
+                    print >>self.file, "    beq $zero,$zero,%s" % skip_label
+                    print >>self.file, "%s:" % yes_label
+                    print >>self.file, "    ori %s,$zero,1" % rd
+                    print >>self.file, "%s:" % skip_label
                 elif objeto.op.op == '!=':
                     rt = self.pop()
                     rs = self.pop()
-                    print >>self.file, "    slt $t0,{0},{1}".format(rs,rt)
-                    print >>self.file, "    slt $t1,{0},{1}".format(rt,rs)
-                    print >>self.file, "    and $t2,$t0,$t1"
-                    print >>self.file, "    nor %s,$t2,$zero"  % self.push()
+                    rd = self.push()
+                    yes_label = self.new_label()
+                    skip_label = self.new_label()
+                    print >>self.file, "    beq {0},{1},{2}".format(rt,rs,yes_label)
+                    print >>self.file, "    ori %s,$zero,1" % rd
+                    print >>self.file, "    beq $zero,$zero,%s" % skip_label
+                    print >>self.file, "%s:" % yes_label
+                    print >>self.file, "    ori %s,$zero,0" % rd
+                    print >>self.file, "%s:" % skip_label
+                    
                 
         elif isinstance(objeto, NodoNumero):
             numero = objeto.expression
