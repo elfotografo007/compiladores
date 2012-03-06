@@ -182,7 +182,7 @@ class VisitanteGenerar(Visitante):
                     for i in range(-1,cantidadArgumentos*-1-1,-1):
                         idArgumento= argumentosFuncion[i]['id']
                         print >>self.file, "    sw $a{0},{1}($fp)".format(i*-1-1,variables[idArgumento]['offset'])
-                        print variables
+                        #print variables
                 else:
                     print >>self.file, "    addi $sp,$sp,-64"
                     print >>self.file, "    sw $fp,4($sp)"
