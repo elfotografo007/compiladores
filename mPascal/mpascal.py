@@ -25,6 +25,8 @@ if __name__ == '__main__':
                 outf.close()
         except Exception, e:
             print e
+            
+            
 #        filename = sys.argv[1]
 #        f = open(filename)
 #        data = f.read()
