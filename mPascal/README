@@ -1,5 +1,5 @@
 Proyecto de Compiladores mPascal
-Analizador Sintáctico Segundo semestre de 2011
+Generador de codigo Segundo semestre de 2011
 Presentado por:
 
 Andrés Felipe Torres Cano
@@ -7,3 +7,6 @@ Andrés Felipe Torres Cano
 
 Esteban Santa García
 1.093.219.099
+
+
+Notas: El archivo de salida generado por mpascal.py es compatible con el simulador SPIM
